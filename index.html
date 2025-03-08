@@ -1511,6 +1511,80 @@
         min-width: 150px;
       }
     }
+    /* JSONBin相关样式 */
+.jsonbin-info {
+  background-color: rgba(0, 122, 255, 0.1);
+  border-radius: var(--apple-border-radius);
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid #007AFF;
+}
+
+.dark .jsonbin-info {
+  background-color: rgba(0, 122, 255, 0.2);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-success {
+  background-color: rgba(52, 199, 89, 0.2);
+  color: #28A745;
+}
+
+.dark .badge-success {
+  background-color: rgba(52, 199, 89, 0.3);
+  color: #34C759;
+}
+
+.badge-warning {
+  background-color: rgba(255, 149, 0, 0.2);
+  color: #FF9500;
+}
+
+.dark .badge-warning {
+  background-color: rgba(255, 149, 0, 0.3);
+  color: #FF9500;
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+.status-online {
+  background-color: #34C759;
+}
+
+.status-offline {
+  background-color: #FF3B30;
+}
+
+.status-syncing {
+  background-color: #FF9500;
+  animation: pulse 1s infinite;
+}
+
+.btn-cloud {
+  background-color: #007AFF;
+  color: white;
+  position: relative;
+}
+
+.btn-cloud:hover {
+  background-color: #0062CC;
+}
   </style>
 </head>
 <body>
@@ -1550,7 +1624,16 @@
         </svg>
       </button>
     </div>
-    
+    <!-- 云存储状态显示 -->
+<div id="cloud-status" class="jsonbin-info flex justify-between items-center mb-4">
+  <div class="flex items-center">
+    <span class="status-indicator status-offline" id="cloud-indicator"></span>
+    <span id="cloud-status-text">云同步状态: 未连接</span>
+  </div>
+  <div id="cloud-actions">
+    <button id="connect-jsonbin" class="btn btn-sm btn-default">配置JSONBin</button>
+  </div>
+</div>
     <!-- 内容区域 -->
     <div id="content-area">
       <!-- 主界面 - KV展示区 -->
@@ -1602,7 +1685,18 @@
             <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">提示：点击"×"可删除高亮区域</span>
           </div>
         </div>
-        
+        <!-- 发布到云端按钮 -->
+<div class="text-center mb-6 admin-controls">
+  <button id="publish-to-cloud" class="btn btn-cloud px-6 py-2 mb-2">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+      <path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"></path>
+      <polyline points="13 11 16 14 19 11"></polyline>
+      <line x1="16" y1="14" x2="16" y2="20"></line>
+    </svg>
+    发布到云端
+  </button>
+  <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">发布后其他用户也能看到您的更改</p>
+</div>
         <!-- 导出/导入按钮 - 仅管理员可见 -->
         <div class="flex justify-center gap-4 mb-8 flex-wrap admin-controls">
           <button id="export-settings" class="btn btn-default">导出规范设置</button>
@@ -1911,24 +2005,78 @@
       </div>
     </div>
   </div>
+<!-- JSONBin配置模态框 -->
+<div id="jsonbin-config-modal" class="modal z-60">
+  <div class="bg-white dark:bg-gray-800 max-w-md w-full rounded-xl shadow-2xl overflow-hidden">
+    <div class="flex justify-between items-center p-4 border-b border" style="border-color: var(--border-light);">
+      <h3 class="text-xl font-bold text-primary">JSONBin配置</h3>
+      <button id="close-jsonbin-config-modal" class="close-button">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="p-6">
+      <div class="mb-6">
+        <div class="alert alert-default mb-4">
+          <div>
+            <p class="text-sm">JSONBin用于存储和共享KV规范数据，使得多设备之间可以同步内容。请按照以下步骤设置：</p>
+            <ol class="list-decimal pl-4 text-sm mt-2 space-y-1">
+              <li>访问 <a href="https://jsonbin.io" target="_blank" class="text-blue-600 dark:text-blue-400">JSONBin.io</a> 并注册账号</li>
+              <li>在个人设置中生成API密钥</li>
+              <li>创建一个新的Bin或使用已有的Bin</li>
+            </ol>
+          </div>
+        </div>
 
+        <div class="mb-4">
+          <label for="jsonbin-api-key" class="block text-sm font-medium mb-1">JSONBin API密钥</label>
+          <input type="password" id="jsonbin-api-key" class="w-full rounded-md px-3 py-2 text-base" placeholder="输入您的JSONBin API密钥">
+        </div>
+
+        <div class="mb-4">
+          <label for="jsonbin-bin-id" class="block text-sm font-medium mb-1">Bin ID</label>
+          <input type="text" id="jsonbin-bin-id" class="w-full rounded-md px-3 py-2 text-base" placeholder="输入您的Bin ID">
+          <div class="flex justify-between items-center mt-2">
+            <p class="text-sm text-gray-500 dark:text-gray-400">没有Bin ID？</p>
+            <button id="create-new-bin" class="btn btn-sm btn-default">创建新Bin</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button id="save-jsonbin-config" class="btn btn-primary">保存配置</button>
+      </div>
+    </div>
+  </div>
+</div>
   <script>
     console.log("初始化KV规范指南应用");
     
     // 全局变量，存储用户选择的图片
     let selectedImage = null;
-    
+
     // 管理员密码
     const ADMIN_PASSWORD = "admin123"; // 您可以修改为更安全的密码
-    
+
     // 管理员模式状态
     let isAdminMode = false;
-    
+
     // 本地存储键名
     const STORAGE_KEY = "kv_guide_settings";
     const TITLE_KEY = "kv_guide_title";
     const VERSION_HISTORY_KEY = "kv_guide_version_history";
-    
+
+    // JSONBin相关常量和配置
+    const JSONBIN_CONFIG_KEY = "kv_guide_jsonbin_config";
+
+    // JSONBin配置
+    let jsonBinConfig = {
+      apiKey: "",
+      binId: "",
+      lastSync: null
+    };
+
     // 版本历史数据结构
     let versionHistory = [];
     
@@ -2039,7 +2187,17 @@
       const noVersionHistory = document.getElementById('no-version-history');
       const saveVersionHistoryBtn = document.getElementById('save-version-history');
       const addVersionEntryBtn = document.getElementById('add-version-entry');
-      
+      // JSONBin相关元素
+      const cloudIndicator = document.getElementById('cloud-indicator');
+      const cloudStatusText = document.getElementById('cloud-status-text');
+      const connectJsonBinBtn = document.getElementById('connect-jsonbin');
+      const publishToCloudBtn = document.getElementById('publish-to-cloud');
+      const jsonbinConfigModal = document.getElementById('jsonbin-config-modal');
+      const closeJsonbinConfigModal = document.getElementById('close-jsonbin-config-modal');
+      const jsonbinApiKey = document.getElementById('jsonbin-api-key');
+      const jsonbinBinId = document.getElementById('jsonbin-bin-id');
+      const createNewBinBtn = document.getElementById('create-new-bin');
+      const saveJsonbinConfigBtn = document.getElementById('save-jsonbin-config');
       // 编辑模式标志
       let isEditMode = false;
       
@@ -2064,28 +2222,28 @@
       // 初始化函数 - 检查是否有已保存的图片和配置
       function initApplication() {
         console.log("正在初始化应用...");
-        
+
         // 先从localStorage加载数据
         loadSettingsFromStorage();
-        
+
         // 加载标题
         loadTitle();
-        
+
         // 加载版本历史
         loadVersionHistory();
-        
+
         // 检查是否有配置数据
         if (selectedImage) {
           // 已有图片，显示KV区域，隐藏空状态
           emptyState.classList.add('hidden');
           kvBackground.src = selectedImage;
-          
+
           // 确保图片加载完成后渲染热区
           kvBackground.onload = function() {
             console.log("图片加载完成，准备渲染热区");
             setTimeout(renderViewingAreas, 100);
           };
-          
+
           // 如果图片已经加载完成则直接渲染
           if (kvBackground.complete) {
             console.log("图片已经加载完成，直接渲染热区");
@@ -2095,11 +2253,64 @@
           // 没有图片，显示空状态
           emptyState.classList.remove('hidden');
         }
-        
+
         // 添加调试信息，检查是否为Poe环境
         console.log("运行环境检查: " + (isPoeEnvironment ? "Poe平台内" : "独立HTML文件"));
+      // 加载JSONBin配置
+loadJsonBinConfig();
+
+// 更新云状态指示器
+updateCloudStatus();
+
+// 尝试从云端加载数据
+if (jsonBinConfig.apiKey && jsonBinConfig.binId) {
+  fetchFromJsonBin().then(cloudData => {
+    // 只有当云端有数据时才处理
+    if (cloudData && cloudData.hotspots && cloudData.guidelines) {
+      // 如果本地没有数据，或者用户确认要覆盖本地数据
+      if (!selectedImage || confirm('检测到云端数据。是否加载云端数据覆盖本地设置？')) {
+        console.log('从云端加载数据');
+
+        // 加载图片
+        if (cloudData.image) {
+          selectedImage = cloudData.image;
+          kvBackground.src = selectedImage;
+          emptyState.classList.add('hidden');
+        }
+
+        // 加载热区数据
+        if (cloudData.hotspots) {
+          hotspots = JSON.parse(JSON.stringify(cloudData.hotspots));
+        }
+
+        // 加载规范内容
+        if (cloudData.guidelines) {
+          guidelines = JSON.parse(JSON.stringify(cloudData.guidelines));
+        }
+
+        // 加载标题
+        if (cloudData.title) {
+          mainTitle.textContent = cloudData.title;
+          document.title = cloudData.title;
+        }
+
+        // 加载版本历史
+        if (cloudData.versionHistory) {
+          versionHistory = JSON.parse(JSON.stringify(cloudData.versionHistory));
+        }
+
+        // 渲染界面
+        renderViewingAreas();
+
+        // 添加版本历史记录
+        addAutoVersionHistoryEntry('从云端加载数据');
       }
-      
+    }
+  }).catch(error => {
+    console.error('从云端加载失败，使用本地数据', error);
+  });
+}}
+
       // 加载标题
       function loadTitle() {
         try {
@@ -2871,7 +3082,88 @@
           });
         }
       }
-      
+      // 添加自动版本历史记录
+      function addAutoVersionHistoryEntry(actionType) {
+        if (!versionHistory) {
+          versionHistory = [];
+        }
+
+        // 获取当前日期时间
+        const now = new Date();
+        const formattedDate = now.toLocaleDateString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).replace(/\//g, '-');
+
+        // 创建新记录
+        const newEntry = {
+          id: Date.now().toString(),
+          content: `系统自动记录: ${actionType}`,
+          date: formattedDate,
+          author: "系统"
+        };
+
+        // 添加到数据中
+        versionHistory.unshift(newEntry);
+
+        // 限制历史记录数量，最多保留50条
+        if (versionHistory.length > 50) {
+          versionHistory = versionHistory.slice(0, 50);
+        }
+
+        // 保存到localStorage
+        try {
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(VERSION_HISTORY_KEY, JSON.stringify(versionHistory));
+          }
+        } catch (e) {
+          console.log('无法保存版本历史到localStorage');
+        }
+      }
+      // 添加自动版本历史记录
+function addAutoVersionHistoryEntry(actionType) {
+  if (!versionHistory) {
+    versionHistory = [];
+  }
+
+  // 获取当前日期时间
+  const now = new Date();
+  const formattedDate = now.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).replace(/\//g, '-');
+
+  // 创建新记录
+  const newEntry = {
+    id: Date.now().toString(),
+    content: `系统自动记录: ${actionType}`,
+    date: formattedDate,
+    author: "系统"
+  };
+
+  // 添加到数据中
+  versionHistory.unshift(newEntry);
+
+  // 限制历史记录数量，最多保留50条
+  if (versionHistory.length > 50) {
+    versionHistory = versionHistory.slice(0, 50);
+  }
+
+  // 保存到localStorage
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(VERSION_HISTORY_KEY, JSON.stringify(versionHistory));
+    }
+  } catch (e) {
+    console.log('无法保存版本历史到localStorage');
+  }
+}
       // 更新版本历史字段
       function updateVersionField(e) {
         const field = e.target.dataset.field;
@@ -5332,200 +5624,4 @@
     });
   </script>
 
-<!-- 云存储增强模块 -->
-<script>
-
-  // JSONBin配置
-  const CONFIG = {
-    BIN_ID: "67cb8625acd3cb34a8f6e074", // 替换为您刚才复制的Bin ID
-    API_KEY: "$2a$10$O6lxg1XIo5V3p64MK9C/p.3qpvI00KgFQqVZJ.ide3MboSKPsM1Tm" // 替换为您复制的X-Master-Key
-  };
-
-  // 云存储工具
-  const CloudStore = {
-    // 从云端加载配置
-    load: async function() {
-      try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${CONFIG.BIN_ID}`, {
-          headers: {
-            'X-Master-Key': CONFIG.API_KEY
-          }
-        });
-
-        if (!response.ok) throw new Error('云端加载失败');
-
-        const data = await response.json();
-        console.log("✓ 从云端加载成功");
-        return data.record;
-      } catch (err) {
-        console.error("云端加载错误:", err);
-        return null;
-      }
-    },
-
-    // 保存配置到云端
-    save: async function(config) {
-      try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${CONFIG.BIN_ID}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Master-Key': CONFIG.API_KEY
-          },
-          body: JSON.stringify(config)
-        });
-
-        if (!response.ok) throw new Error('云端保存失败');
-
-        console.log("✓ 云端保存成功");
-        return true;
-      } catch (err) {
-        console.error("云端保存错误:", err);
-        alert("云端保存失败: " + err.message);
-        return false;
-      }
-    }
-  };
-
-  // 页面加载时从云端加载配置
-  document.addEventListener('DOMContentLoaded', async function() {
-    console.log("尝试从云端加载配置...");
-
-    // 先尝试从云端加载
-    const cloudConfig = await CloudStore.load();
-
-    if (cloudConfig && cloudConfig.hotspots) {
-      console.log("应用云端配置");
-
-      // 应用标题
-      if (cloudConfig.title) {
-        const titleEl = document.getElementById('main-title');
-        if (titleEl) {
-          titleEl.textContent = cloudConfig.title;
-          document.title = cloudConfig.title;
-        }
-      }
-
-      // 应用图片
-      if (cloudConfig.image) {
-        window.selectedImage = cloudConfig.image;
-        const kvBg = document.getElementById('kv-background');
-        if (kvBg) {
-          kvBg.src = cloudConfig.image;
-          const emptyState = document.getElementById('empty-state');
-          if (emptyState) emptyState.classList.add('hidden');
-        }
-      }
-
-      // 应用热区
-      if (cloudConfig.hotspots) {
-        window.hotspots = {};
-        Object.keys(cloudConfig.hotspots).forEach(key => {
-          window.hotspots[key] = JSON.parse(JSON.stringify(cloudConfig.hotspots[key]));
-        });
-      }
-
-      // 应用规范内容
-      if (cloudConfig.guidelines) {
-        window.guidelines = {};
-        Object.keys(cloudConfig.guidelines).forEach(key => {
-          window.guidelines[key] = JSON.parse(JSON.stringify(cloudConfig.guidelines[key]));
-        });
-      }
-
-      // 应用版本历史
-      if (cloudConfig.versionHistory) {
-        window.versionHistory = JSON.parse(JSON.stringify(cloudConfig.versionHistory));
-      }
-
-      // 渲染视图
-      if (typeof window.renderViewingAreas === 'function') {
-        setTimeout(window.renderViewingAreas, 300);
-      }
-    } else {
-      console.log("未找到云端配置，使用本地配置");
-      // 加载本地配置
-      if (typeof window.loadSettingsFromStorage === 'function') {
-        window.loadSettingsFromStorage();
-      }
-    }
-  });
-
-  // 增强原有保存功能，添加云保存
-  window.addEventListener('DOMContentLoaded', function() {
-    // 添加云端发布按钮（管理员模式）
-    if (window.isAdminMode) {
-      const cloudBtn = document.createElement('button');
-      cloudBtn.innerHTML = '发布到云端';
-      cloudBtn.style.margin = '10px auto';
-      cloudBtn.style.padding = '8px 16px';
-      cloudBtn.style.backgroundColor = '#5D5CDE';
-      cloudBtn.style.color = 'white';
-      cloudBtn.style.border = 'none';
-      cloudBtn.style.borderRadius = '4px';
-      cloudBtn.style.cursor = 'pointer';
-      cloudBtn.style.display = 'block';
-
-      cloudBtn.onclick = async function() {
-        if (!confirm('确认发布到云端？所有人将看到这些更改。')) return;
-
-        this.disabled = true;
-        this.innerHTML = '发布中...';
-
-        // 获取当前配置
-        const config = {
-          title: document.getElementById('main-title') ?
-                 document.getElementById('main-title').textContent :
-                 document.title,
-          image: window.selectedImage,
-          hotspots: window.hotspots || {},
-          guidelines: window.guidelines || {},
-          versionHistory: window.versionHistory || [],
-          updatedAt: new Date().toISOString()
-        };
-
-        // 保存到云端
-        const success = await CloudStore.save(config);
-
-        this.disabled = false;
-        this.innerHTML = success ? '✓ 发布成功' : '✗ 发布失败';
-
-        setTimeout(() => {
-          this.innerHTML = '发布到云端';
-        }, 2000);
-      };
-
-      // 找到适合放置按钮的位置
-      const adminPanel = document.querySelector('.admin-actions') ||
-                         document.querySelector('.admin-panel') ||
-                         document.getElementById('admin-controls');
-
-      if (adminPanel) {
-        // 添加到管理面板
-        adminPanel.appendChild(cloudBtn);
-      } else {
-        // 添加悬浮按钮
-        cloudBtn.style.position = 'fixed';
-        cloudBtn.style.bottom = '20px';
-        cloudBtn.style.right = '20px';
-        cloudBtn.style.zIndex = '9999';
-        document.body.appendChild(cloudBtn);
-      }
-
-      // 修改原始保存函数，增加云保存功能
-      const originalSaveFunction = window.saveSettingsToStorage;
-      if (typeof originalSaveFunction === 'function') {
-        window.saveSettingsToStorage = function() {
-          // 先执行原始保存
-          const result = originalSaveFunction.apply(this, arguments);
-
-          // 为避免每次自动保存到云端，我们不在这里自动保存
-          // 用户需要点击"发布到云端"按钮手动发布
-
-          return result;
-        };
-      }
-    }
-  });
-</script>
 </body></html>
