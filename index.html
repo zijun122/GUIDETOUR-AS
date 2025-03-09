@@ -1,331 +1,847 @@
 <!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>热区位置调整工具</title>
+  <title>Art Studio视觉GuideTour</title>
   <style>
+    /* 苹果设计风格变量 */
+    :root {
+      --sf-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+      --gray-50: #F9F9F9;
+      --gray-100: #F2F2F7;
+      --gray-200: #E5E5EA;
+      --gray-300: #D1D1D6;
+      --gray-400: #C7C7CC;
+      --gray-500: #AEAEB2;
+      --gray-600: #8E8E93;
+      --gray-700: #636366;
+      --gray-800: #3A3A3C;
+      --gray-900: #2C2C2E;
+      --black: #1C1C1E;
+      
+      --bg-light: #FFFFFF;
+      --bg-dark: #000000;
+      --text-light: #1C1C1E;
+      --text-dark: #F2F2F7;
+      
+      --border-radius: 14px;
+      --border-radius-sm: 10px;
+      --button-radius: 8px;
+      --card-shadow: 0 1px 8px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+      --dark-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* 基础样式 */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      font-family: var(--sf-font);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
     
     body {
-      padding: 20px;
-      background-color: #f5f5f7;
+      background-color: var(--bg-light);
+      color: var(--text-light);
+      line-height: 1.5;
+      transition: background-color 0.3s, color 0.3s;
+      padding: 28px;
+    }
+    
+    body.dark {
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
     }
     
     .container {
-      max-width: 1300px;
+      max-width: 1200px;
       margin: 0 auto;
-      background-color: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      padding: 30px;
+    }
+    
+    /* 标题样式 */
+    header {
+      text-align: center;
+      margin-bottom: 36px;
     }
     
     h1 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #333;
+      font-size: 32px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
     }
     
-    .image-container {
+    .subtitle {
+      font-size: 17px;
+      color: var(--gray-700);
+      font-weight: 400;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    body.dark .subtitle {
+      color: var(--gray-400);
+    }
+    
+    /* 主内容区域 */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+    
+    @media (min-width: 768px) {
+      .main-content {
+        flex-direction: row;
+      }
+    }
+    
+    /* KV图片区域 */
+    .kv-container {
+      flex: 1;
       position: relative;
-      margin-bottom: 30px;
+      border-radius: var(--border-radius);
       overflow: hidden;
-      border-radius: 8px;
-      border: 1px solid #ddd;
+      box-shadow: var(--card-shadow);
+      min-height: 300px;
+      background-color: var(--bg-light);
     }
     
-    .bg-image {
+    body.dark .kv-container {
+      box-shadow: var(--dark-shadow);
+      background-color: var(--black);
+    }
+    
+    .kv-image {
       width: 100%;
+      height: auto;
       display: block;
+      object-fit: contain;
     }
     
-    .hotspot {
+    /* 热区样式 - 移除过渡效果防止闪烁 */
+    .highlight-area {
       position: absolute;
-      border: 2px solid #FF3B30;
-      background-color: rgba(255, 59, 48, 0.2);
-      cursor: move;
-      z-index: 100;
+      border: 2px solid transparent;
+      background-color: rgba(0, 0, 0, 0);
+      cursor: pointer;
+      z-index: 10;
+      border-radius: 8px;
     }
     
-    .hotspot-label {
+    .highlight-area:hover {
+      border-color: var(--gray-900);
+      background-color: rgba(0, 0, 0, 0.08);
+    }
+    
+    .highlight-area.active {
+      border-color: var(--gray-900);
+      background-color: rgba(0, 0, 0, 0.12);
+    }
+    
+    body.dark .highlight-area:hover {
+      border-color: var(--gray-100);
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    body.dark .highlight-area.active {
+      border-color: var(--gray-100);
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* 高亮区域标签 */
+    .highlight-label {
       position: absolute;
       top: 0;
       left: 0;
-      background-color: #FF3B30;
+      background-color: var(--gray-900);
       color: white;
-      font-size: 12px;
-      padding: 2px 6px;
-      white-space: nowrap;
-      border-bottom-right-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 6px 0 6px 0;
+      opacity: 0;
+      letter-spacing: 0.3px;
+      pointer-events: none;
     }
     
-    .resize-handle {
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      background-color: #FF3B30;
-      bottom: 0;
-      right: 0;
-      cursor: nwse-resize;
-      z-index: 101;
+    body.dark .highlight-label {
+      background-color: var(--gray-100);
+      color: var(--black);
     }
     
-    .controls {
-      margin-bottom: 20px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
+    .highlight-area:hover .highlight-label,
+    .highlight-area.active .highlight-label {
+      opacity: 1;
     }
     
-    button {
-      padding: 8px 16px;
-      background-color: #5D5CDE;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background-color 0.2s;
+    /* 信息侧栏 */
+    .info-sidebar {
+      flex: 0 0 380px;
+      border-radius: var(--border-radius);
+      background-color: var(--gray-50);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      height: fit-content;
+      border: 1px solid var(--gray-200);
     }
     
-    button:hover {
-      background-color: #4a49b8;
+    @media (max-width: 767px) {
+      .info-sidebar {
+        flex: 1;
+      }
     }
     
-    .results {
-      margin-top: 30px;
-      background-color: #f5f5f7;
-      border-radius: 8px;
-      padding: 20px;
+    body.dark .info-sidebar {
+      background-color: var(--black);
+      box-shadow: var(--dark-shadow);
+      border-color: var(--gray-900);
     }
     
-    .results h2 {
-      margin-bottom: 15px;
-      color: #333;
+    .info-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--gray-200);
+      background-color: var(--bg-light);
+    }
+    
+    body.dark .info-header {
+      border-bottom-color: var(--gray-900);
+      background-color: var(--gray-900);
+    }
+    
+    .info-title {
       font-size: 18px;
+      font-weight: 600;
+      color: var(--text-light);
+      letter-spacing: -0.01em;
     }
     
-    pre {
-      background-color: #2c2c2e;
-      color: #f2f2f7;
-      padding: 15px;
-      border-radius: 6px;
-      overflow-x: auto;
-      font-family: monospace;
-      white-space: pre-wrap;
+    body.dark .info-title {
+      color: var(--text-dark);
     }
     
-    .original-code {
-      margin-top: 30px;
+    .info-content {
+      padding: 24px;
+      font-size: 15px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    
+    .info-default {
+      color: var(--gray-600);
+      text-align: center;
+      padding: 40px 20px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    
+    body.dark .info-default {
+      color: var(--gray-500);
+    }
+    
+    /* 链接样式 */
+    a {
+      color: var(--gray-800);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border-bottom: 1px solid var(--gray-400);
+      padding-bottom: 1px;
+    }
+    
+    a:hover {
+      color: var(--black);
+      border-bottom-color: var(--black);
+    }
+    
+    body.dark a {
+      color: var(--gray-300);
+      border-bottom-color: var(--gray-600);
+    }
+    
+    body.dark a:hover {
+      color: var(--gray-100);
+      border-bottom-color: var(--gray-100);
+    }
+    
+    /* 信息项样式 */
+    .info-item {
+      margin-bottom: 24px;
+      background-color: var(--bg-light);
+      border-radius: var(--border-radius-sm);
+      padding: 20px;
+      border: 1px solid var(--gray-200);
+    }
+    
+    body.dark .info-item {
+      background-color: var(--gray-900);
+      border-color: var(--gray-800);
+    }
+    
+    .info-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .info-item-title {
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-light);
+      font-size: 16px;
+      letter-spacing: -0.01em;
+    }
+    
+    body.dark .info-item-title {
+      color: var(--text-dark);
+    }
+    
+    .info-item-content {
+      color: var(--gray-700);
+      line-height: 1.6;
+    }
+    
+    body.dark .info-item-content {
+      color: var(--gray-400);
+    }
+    
+    .info-item-content p {
+      margin-bottom: 10px;
+      position: relative;
+    }
+    
+    .info-item-content p:last-child {
+      margin-bottom: 0;
+    }
+    
+    /* 有序列表样式 */
+    .numbered-list {
+      counter-reset: item;
+      list-style-type: none;
+      padding-left: 0;
+    }
+    
+    .numbered-list li {
+      counter-increment: item;
+      margin-bottom: 8px;
+      position: relative;
+      padding-left: 28px;
+    }
+    
+    .numbered-list li:before {
+      content: counter(item) ".";
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-weight: 500;
+      color: var(--gray-900);
+    }
+    
+    body.dark .numbered-list li:before {
+      color: var(--gray-300);
+    }
+    
+    /* 主题切换按钮 */
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--bg-light);
+      border: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 20;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    body.dark .theme-toggle {
+      background-color: var(--gray-900);
+      border-color: var(--gray-800);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .theme-toggle:hover {
+      transform: scale(1.05);
+    }
+    
+    .theme-toggle:active {
+      transform: scale(0.95);
+    }
+    
+    /* 图标 */
+    .icon {
+      width: 22px;
+      height: 22px;
+      stroke-width: 1.5;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    /* 响应式调整 */
+    @media (max-width: 480px) {
+      body {
+        padding: 16px;
+      }
+      
+      h1 {
+        font-size: 26px;
+      }
+      
+      .subtitle {
+        font-size: 15px;
+      }
+      
+      .info-header {
+        padding: 16px 20px;
+      }
+      
+      .info-content {
+        padding: 20px;
+      }
+      
+      .info-item {
+        padding: 16px;
+      }
+    }
+    
+    /* 悬浮提示 */
+    .tooltip {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(28, 28, 30, 0.9);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0.95;
+      z-index: 15;
+      letter-spacing: 0.2px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      pointer-events: none;
+    }
+    
+    body.dark .tooltip {
+      background-color: rgba(242, 242, 247, 0.2);
     }
   </style>
 </head>
 <body>
+  <!-- 主题切换按钮 -->
+  <button class="theme-toggle" id="theme-toggle" title="切换暗黑/亮色模式">
+    <!-- 亮色模式图标 -->
+    <svg xmlns="http://www.w3.org/2000/svg" id="light-icon" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+    </svg>
+    <!-- 暗色模式图标 -->
+    <svg xmlns="http://www.w3.org/2000/svg" id="dark-icon" class="icon hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+    </svg>
+  </button>
+
   <div class="container">
-    <h1>华为Mate70系列热区位置调整工具</h1>
-    
-    <div class="controls">
-      <button id="toggle-hotspots">显示/隐藏热区</button>
-      <button id="get-positions">获取位置代码</button>
-      <button id="reset-positions">重置位置</button>
-    </div>
-    
-    <div class="image-container" id="image-container">
-      <img src="huawei-mate70.jpg" alt="华为Mate70系列" class="bg-image" id="bg-image">
-      <!-- 热区将动态添加到这里 -->
-    </div>
-    
-    <div class="results" id="results">
-      <h2>热区位置信息</h2>
-      <pre id="position-code">// 调整热区位置后点击"获取位置代码"按钮</pre>
+    <header>
+      <h1>Art Studio视觉GuideTour</h1>
+      <p class="subtitle">鼠标悬浮各元素，查看设计规范路径指引</p>
+    </header>
+
+    <div class="main-content">
+      <!-- KV图片区域 -->
+      <div class="kv-container">
+        <img src="huawei-mate70.jpg" alt="华为Mate70系列" class="kv-image" id="kv-image">
+        
+        <!-- 使用正确的热区位置代码 -->
+        <div class="highlight-area" id="editable-logo" style="left: 83.15%; top: 3.1%; width: 14.603%; height: 8.95727%;">
+          <div class="highlight-label">Logo</div>
+        </div>
+
+        <div class="highlight-area" id="editable-slogan" style="left: 60.16%; top: 34.14%; width: 31.95%; height: 6.91%;">
+          <div class="highlight-label">产品传播名</div>
+        </div>
+
+        <div class="highlight-area" id="editable-xmage" style="left: 87.46%; top: 41.95%; width: 7%; height: 3%;">
+          <div class="highlight-label">XMAGE字标</div>
+        </div>
+
+        <div class="highlight-area" id="slogan-area" style="left: 64.57%; top: 45.96%; width: 22.92%; height: 9.97%;">
+          <div class="highlight-label">SLOGAN</div>
+        </div>
+
+        <div class="highlight-area" id="editable-feature-text" style="left: 60.54%; top: 59.12%; width: 32%; height: 5%;">
+          <div class="highlight-label">卖点KSP</div>
+        </div>
+
+        <div class="highlight-area" id="editable-hotspot-1" style="left: 84.4%; top: 83.38%; width: 14%; height: 5%;">
+          <div class="highlight-label">HOS标志</div>
+        </div>
+
+        <div class="highlight-area" id="editable-hotspot-2" style="left: 74.48%; top: 90.36%; width: 24%; height: 5%;">
+          <div class="highlight-label">Disclaimer</div>
+        </div>
+        
+        <div class="tooltip" id="tooltip">鼠标悬浮或点击查看设计规范</div>
+      </div>
+
+      <!-- 信息侧栏 -->
+      <div class="info-sidebar" id="info-sidebar">
+        <div class="info-header">
+          <h3 class="info-title" id="info-title">视觉设计规范</h3>
+        </div>
+        <div id="info-content" class="info-content">
+          <div class="info-default">
+            <p>将鼠标悬停在图片上的高亮区域<br>查看对应的设计规范与说明</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  
+
   <script>
+    // 等待DOM加载完成
     document.addEventListener('DOMContentLoaded', function() {
-      // 热区初始位置（从原始代码复制）
-      const hotspotData = [
-        { id: 'editable-logo', label: 'Logo', left: '83.1267%', top: '3.7604%', width: '14.603%', height: '8.95727%' },
-        { id: 'editable-slogan', label: '产品传播名', left: '65%', top: '30%', width: '32%', height: '10%' },
-        { id: 'editable-xmage', label: 'XMAGE字标', left: '85%', top: '33.5%', width: '7%', height: '3%' },
-        { id: 'slogan-area', label: 'SLOGAN', left: '65%', top: '39%', width: '32%', height: '10%' },
-        { id: 'editable-feature-text', label: '卖点KSP', left: '65%', top: '48%', width: '32%', height: '5%' },
-        { id: 'editable-hotspot-1', label: 'HOS标志', left: '83%', top: '67%', width: '14%', height: '5%' },
-        { id: 'editable-hotspot-2', label: 'Disclaimer', left: '75%', top: '74%', width: '24%', height: '5%' }
-      ];
+      // 获取DOM元素
+      const themeToggle = document.getElementById('theme-toggle');
+      const lightIcon = document.getElementById('light-icon');
+      const darkIcon = document.getElementById('dark-icon');
+      const infoTitle = document.getElementById('info-title');
+      const infoContent = document.getElementById('info-content');
+      const tooltip = document.getElementById('tooltip');
       
-      const imageContainer = document.getElementById('image-container');
-      const bgImage = document.getElementById('bg-image');
-      const toggleHotspotsBtn = document.getElementById('toggle-hotspots');
-      const getPositionsBtn = document.getElementById('get-positions');
-      const resetPositionsBtn = document.getElementById('reset-positions');
-      const positionCode = document.getElementById('position-code');
+      // 所有热区元素
+      const highlightAreas = document.querySelectorAll('.highlight-area');
       
-      let hotspotsVisible = true;
-      let activeHotspot = null;
-      let startX, startY, startLeft, startTop, startWidth, startHeight;
-      let resizing = false;
+      // 当前激活的热区
+      let activeArea = null;
       
-      // 创建热区
-      function createHotspots() {
-        hotspotData.forEach((data) => {
-          const hotspot = document.createElement('div');
-          hotspot.className = 'hotspot';
-          hotspot.id = data.id;
-          hotspot.style.left = data.left;
-          hotspot.style.top = data.top;
-          hotspot.style.width = data.width;
-          hotspot.style.height = data.height;
-          
-          const label = document.createElement('div');
-          label.className = 'hotspot-label';
-          label.textContent = data.label;
-          hotspot.appendChild(label);
-          
-          const resizeHandle = document.createElement('div');
-          resizeHandle.className = 'resize-handle';
-          hotspot.appendChild(resizeHandle);
-          
-          imageContainer.appendChild(hotspot);
+      // 定义每个热区的内容
+      const areaContents = {
+        'editable-logo': {
+          title: 'HUAWEI LOGO',
+          content: `
+            <div class="info-item">
+              <div class="info-item-title">文件模板</div>
+              <div class="info-item-content">
+                <ul class="numbered-list">
+                  <li>HUAWEI Logo（横版、竖版、字标）：<a href="https://3ms.huawei.com/documents/docinfo/389945973017399296" target="_blank">查看链接</a></li>
+                  <li>含LOGO的完稿标准模板：<a href="https://onebox.huawei.com/p/3b0870d8b3fb989b86045374ea9b54a2" target="_blank">查看链接</a></li>
+                </ul>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-title">更多使用规范详见</div>
+              <div class="info-item-content">
+                <p>《CBG 华为视觉识别规范V2.1》：<a href="https://3ms.huawei.com/documents/docinfo/477295738862387200" target="_blank">查看链接</a></p>
+              </div>
+            </div>
+          `
+        },
+        'editable-slogan': {
+          title: '产品传播名',
+          content: `
+            <div class="info-item">
+              <div class="info-item-title">位置间距</div>
+              <div class="info-item-content">
+                <ul class="numbered-list">
+                  <li>以华为LOGO中"H"高度为一个基本单位尺寸，产品名与广告语行间距为1.50H；产品名与XMAGE Logo行间距为0.25H</li>
+                  <li>产品名与产品卖点左、右侧等宽对齐</li>
+                  <li>产品名与广告语、与产品卖点居中对齐</li>
+                </ul>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-title">通用规范文档</div>
+              <div class="info-item-content">
+                <p>终端产品传播名使用规范（通用）：<a href="https://onebox.huawei.com/p/50260c2e96c384ed7dfc855eb8fa4eec" target="_blank">查看链接</a></p>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-title">KV文字组合</div>
+              <div class="info-item-content">
+                <p>产品名、广告语及卖点组合按使用规范组合使用，文字组合在画面中上下居中，到左边产品的距离，与到画面右边的距离相等，不可拆分，不可随意改变颜色，文字组合的宽度不大于整个画面宽度的31%。</p>
+              </div>
+            </div>
+          `
+        },
+        'editable-xmage': {
+          title: 'XMAGE字标',
+          content: `
+            <div class="info-item">
+              <div class="info-item-title">位置间距</div>
+              <div class="info-item-content">
+                <p>XMAGE Logo高度为0.50H；XMAGE Logo与广告语行间距为0.75H；广告语与产品卖点行间距为1.50H</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-title">色值参考</div>
+              <div class="info-item-content">
+                <ul class="numbered-list">
+                  <li>PANTONE 186C</li>
+                  <li>RGB 200/16/46</li>
+                  <li>CMYK 27/100/86/0</li>
+                  <li>HEX # CE0E2D</li>
+                </ul>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-title">相关资源</div>
+              <div class="info-item-content">
+                <ul class="numbered-list">
+                  <li>字标模板：<a href="https://3ms.huawei.com/documents/docinfo/775070380629831680?attachmentIdx=3" target="_blank">查看链接</a></li>
+                  <li>更多使用规范详见《XMAGE Awards 2024视觉识别规范》：<a href="https://3ms.huawei.com/documents/docinfo/775070380629831680" target="_blank">查看链接</a></li>
+                </ul>
+              </div>
+            </div>
+          `
+        },
+        'slogan-area': {
+          title: 'SLOGAN',
+          content: `
+            <div class="info-item">
+              <div class="info-item-title">字体要求</div>
+              <div class="info-item-content">
+                <ul class="numbered-list">
+                  <li>中文：方正兰亭黑简体常规</li>
+                  <li>英文：Huawei Sans Regular</li>
+                  <li>更多字体规范说明见公司字体 ( 中文&英文 ) 使用指导细则 V3.0 <a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&cata=595173" target="_blank">查看链接</a></li>
+                  <li>华为所有版权字体模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></li>
+                </ul>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-title">位置间距</div>
+              <div class="info-item-content">
+                <p>以华为LOGO中"H"高度为一个基本单位尺寸，产品名与广告语行间距为1.50H；产品名与产品卖点左、右侧等宽对齐；</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-title">KV文字组合</div>
+              <div class="info-item-content">
+                <p>产品名、广告语及卖点组合按使用规范组合使用，文字组合在画面中上下居中，到左边产品的距离，与到画面右边的距离相等，不可拆分，不可随意改变颜色，文字组合的宽度不大于整个画面宽度的31%。</p>
+              </div>
+            </div>
+          `
+        },
+        'editable-feature-text': {
+          title: '卖点KSP',
+          content: `
+            <div class="info-item">
+              <div class="info-item-title">字体要求</div>
+              <div class="info-item-content">
+                <ul class="numbered-list">
+                  <li>中文：方正兰亭黑简体常规</li>
+                  <li>英文：Huawei Sans Regular</li>
+                  <li>更多字体规范说明见公司字体 ( 中文&英文 ) 使用指导细则 V3.0 <a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&cata=595173" target="_blank">查看链接</a></li>
+                  <li>华为所有版权字体模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></li>
+                </ul>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-title">位置间距</div>
+              <div class="info-item-content">
+                <p>产品名与广告语、与产品卖点居中对齐，广告语左、右侧缩进均为2.35H</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-title">KV文字组合</div>
+              <div class="info-item-content">
+                <p>产品名、广告语及卖点组合按使用规范组合使用，文字组合在画面中上下居中，到左边产品的距离，与到画面右边的距离相等，不可拆分，不可随意改变颜色，文字组合的宽度不大于整个画面宽度的31%。</p>
+              </div>
+            </div>
+          `
+        },
+        'editable-hotspot-1': {
+          title: 'App Gallery/HOS标志',
+          content: `
+            <div class="info-item">
+              <div class="info-item-title">HarmonyOS相关规范</div>
+              <div class="info-item-content">
+                <ul class="numbered-list">
+                  <li>HOS标志模板文件：<a href="https://onebox.huawei.com/p/b1fc470145b278b62581671c3fb6c838" target="_blank">查看链接</a></li>
+                  <li>HOS标志位置间距：取华为LOGO标志中的字母"H"高度为X，HarmonyOS标志底部至免责声明距离为0.5X，具体底部高度可根据免责声明内容高度进行调整。在横版KV中，"HarmonyOS"高度为X，距离KV右侧距离为2X。</li>
+                </ul>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-title">App Gallery相关规范</div>
+              <div class="info-item-content">
+                <ul class="numbered-list">
+                  <li>App Gallery标志模板文件：<a href="https://onebox.huawei.com/p/baa7f1f51272139c894523337e90a671" target="_blank">查看链接</a></li>
+                  <li>App Gallery标志位置间距：取华为LOGO标志中的字母"H"高度为X，HarmonyOS标志底部至免责声明距离为0.5X，具体底部高度可根据免责声明内容高度进行调整。在横版KV中，"HarmonyOS"高度为X，距离KV右侧距离为2X。</li>
+                </ul>
+              </div>
+            </div>
+          `
+        },
+        'editable-hotspot-2': {
+          title: 'Disclaimer',
+          content: `
+            <div class="info-item">
+              <div class="info-item-title">字体要求</div>
+              <div class="info-item-content">
+                <ul class="numbered-list">
+                  <li>中文：方正兰亭黑简体，字体大小为45px，间距为0，行间距为75px</li>
+                  <li>英文：Huawei Sans Regular, 字体大小为54px，间距为0，行间距为67px</li>
+                  <li>更多字体规范说明见公司字体 ( 中文&英文 ) 使用指导细则 V3.0 <a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&cata=595173" target="_blank">查看链接</a></li>
+                  <li>华为所有版权字体模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></li>
+                </ul>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-title">位置间距</div>
+              <div class="info-item-content">
+                <p>居于画面右下角，免责声明到画面右侧的距离为2X</p>
+              </div>
+            </div>
+          `
+        }
+      };
+      
+      // 初始化主题
+      initTheme();
+      
+      // 提示文本定时隐藏
+      setTimeout(() => {
+        tooltip.style.opacity = '0';
+        setTimeout(() => {
+          tooltip.style.display = 'none';
+        }, 500);
+      }, 3000);
+      
+      // 热区事件处理 - 修复悬停和点击使用同一热区的问题
+      highlightAreas.forEach(area => {
+        // 鼠标进入热区
+        area.addEventListener('mouseenter', function() {
+          if (!activeArea) {
+            showAreaInfo(this.id);
+          }
         });
-      }
-      
-      // 移除所有热区
-      function removeHotspots() {
-        document.querySelectorAll('.hotspot').forEach(hotspot => {
-          hotspot.remove();
-        });
-      }
-      
-      // 重置热区位置
-      function resetHotspots() {
-        removeHotspots();
-        createHotspots();
-        setupDragHandlers();
-      }
-      
-      // 设置拖动调整功能
-      function setupDragHandlers() {
-        const hotspots = document.querySelectorAll('.hotspot');
         
-        hotspots.forEach(hotspot => {
-          // 开始拖动/调整大小
-          hotspot.addEventListener('mousedown', function(e) {
-            if (e.target.className === 'resize-handle') {
-              resizing = true;
-            } else if (e.target.className !== 'hotspot-label') {
-              resizing = false;
-            } else {
-              return; // 点击标签时不做处理
+        // 鼠标离开热区
+        area.addEventListener('mouseleave', function() {
+          if (!activeArea) {
+            showDefaultInfo();
+          }
+        });
+        
+        // 点击热区
+        area.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          if (activeArea === this.id) {
+            // 再次点击已激活区域，取消锁定
+            activeArea = null;
+            this.classList.remove('active');
+            showDefaultInfo();
+          } else {
+            // 锁定新区域
+            if (activeArea) {
+              document.getElementById(activeArea).classList.remove('active');
             }
-            
-            e.preventDefault();
-            activeHotspot = this;
-            
-            const rect = activeHotspot.getBoundingClientRect();
-            const containerRect = imageContainer.getBoundingClientRect();
-            
-            startX = e.clientX;
-            startY = e.clientY;
-            startLeft = rect.left - containerRect.left;
-            startTop = rect.top - containerRect.top;
-            startWidth = rect.width;
-            startHeight = rect.height;
-            
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-          });
+            activeArea = this.id;
+            this.classList.add('active');
+            showAreaInfo(this.id);
+          }
         });
-      }
+      });
       
-      // 鼠标移动处理 - 拖动/调整大小
-      function onMouseMove(e) {
-        if (!activeHotspot) return;
+      // 点击图片空白区域，取消锁定
+      document.getElementById('kv-image').addEventListener('click', function(e) {
+        if (e.target === this && activeArea) {
+          document.getElementById(activeArea).classList.remove('active');
+          activeArea = null;
+          showDefaultInfo();
+        }
+      });
+      
+      // 主题切换
+      themeToggle.addEventListener('click', function() {
+        document.body.classList.toggle('dark');
+        updateThemeIcon();
         
-        const containerRect = imageContainer.getBoundingClientRect();
-        const containerWidth = containerRect.width;
-        const containerHeight = containerRect.height;
-        
-        if (resizing) {
-          // 调整大小
-          const newWidth = Math.max(30, startWidth + (e.clientX - startX));
-          const newHeight = Math.max(20, startHeight + (e.clientY - startY));
-          
-          const widthPercent = (newWidth / containerWidth * 100).toFixed(2) + '%';
-          const heightPercent = (newHeight / containerHeight * 100).toFixed(2) + '%';
-          
-          activeHotspot.style.width = widthPercent;
-          activeHotspot.style.height = heightPercent;
-        } else {
-          // 移动位置
-          const dx = e.clientX - startX;
-          const dy = e.clientY - startY;
-          
-          const newLeft = Math.max(0, Math.min(containerWidth - startWidth, startLeft + dx));
-          const newTop = Math.max(0, Math.min(containerHeight - startHeight, startTop + dy));
-          
-          const leftPercent = (newLeft / containerWidth * 100).toFixed(2) + '%';
-          const topPercent = (newTop / containerHeight * 100).toFixed(2) + '%';
-          
-          activeHotspot.style.left = leftPercent;
-          activeHotspot.style.top = topPercent;
+        try {
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+          }
+        } catch (e) {
+          console.log('无法保存主题设置到localStorage');
+        }
+      });
+      
+      // 显示热区信息
+      function showAreaInfo(areaId) {
+        const areaData = areaContents[areaId];
+        if (areaData) {
+          infoTitle.textContent = areaData.title;
+          infoContent.innerHTML = areaData.content;
+          infoContent.scrollTop = 0;
         }
       }
       
-      // 鼠标放开处理 - 结束拖动
-      function onMouseUp() {
-        activeHotspot = null;
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
+      // 显示默认信息
+      function showDefaultInfo() {
+        infoTitle.textContent = '视觉设计规范';
+        infoContent.innerHTML = `
+          <div class="info-default">
+            <p>将鼠标悬停在图片上的高亮区域<br>查看对应的设计规范与说明</p>
+          </div>
+        `;
       }
       
-      // 生成热区位置代码
-      function generatePositionCode() {
-        const hotspots = document.querySelectorAll('.hotspot');
-        let code = '<!-- 热区位置代码 -->\n';
+      // 初始化主题
+      function initTheme() {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         
-        hotspots.forEach(hotspot => {
-          code += `<div class="highlight-area" id="${hotspot.id}" style="left: ${hotspot.style.left}; top: ${hotspot.style.top}; width: ${hotspot.style.width}; height: ${hotspot.style.height};">\n`;
-          code += `  <div class="highlight-label">${hotspot.querySelector('.hotspot-label').textContent}</div>\n`;
-          code += `</div>\n\n`;
+        try {
+          if (typeof localStorage !== 'undefined') {
+            const storedTheme = localStorage.getItem('theme');
+            if (storedTheme) {
+              if (storedTheme === 'dark') {
+                document.body.classList.add('dark');
+              }
+              updateThemeIcon();
+              return;
+            }
+          }
+        } catch (e) {
+          console.log('无法访问localStorage，使用系统颜色偏好');
+        }
+        
+        if (prefersDark) {
+          document.body.classList.add('dark');
+        }
+        updateThemeIcon();
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+          if (event.matches) {
+            document.body.classList.add('dark');
+          } else {
+            document.body.classList.remove('dark');
+          }
+          updateThemeIcon();
         });
-        
-        return code;
       }
       
-      // 切换显示/隐藏热区
-      toggleHotspotsBtn.addEventListener('click', function() {
-        hotspotsVisible = !hotspotsVisible;
-        
-        document.querySelectorAll('.hotspot').forEach(hotspot => {
-          hotspot.style.display = hotspotsVisible ? 'block' : 'none';
-        });
-        
-        this.textContent = hotspotsVisible ? '隐藏热区' : '显示热区';
-      });
-      
-      // 获取位置代码
-      getPositionsBtn.addEventListener('click', function() {
-        const code = generatePositionCode();
-        positionCode.textContent = code;
-      });
-      
-      // 重置位置
-      resetPositionsBtn.addEventListener('click', resetHotspots);
-      
-      // 加载图片后再初始化热区
-      bgImage.addEventListener('load', function() {
-        resetHotspots();
-      });
-      
-      // 如果图片已加载，直接初始化
-      if (bgImage.complete) {
-        resetHotspots();
+      // 更新主题图标
+      function updateThemeIcon() {
+        if (document.body.classList.contains('dark')) {
+          lightIcon.classList.add('hidden');
+          darkIcon.classList.remove('hidden');
+        } else {
+          lightIcon.classList.remove('hidden');
+          darkIcon.classList.add('hidden');
+        }
       }
     });
   </script>
