@@ -434,6 +434,33 @@
     body.dark .tooltip {
       background-color: rgba(242, 242, 247, 0.2);
     }
+    
+    /* 位置调整工具样式 */
+    .debug-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 15px;
+      background-color: #5D5CDE;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      z-index: 100;
+    }
+    
+    .area-info {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: rgba(0,0,0,0.7);
+      color: white;
+      padding: 3px 6px;
+      font-size: 10px;
+      z-index: 100;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -449,6 +476,9 @@
     </svg>
   </button>
 
+  <!-- 位置调整工具按钮 -->
+  <button class="debug-button" id="debug-button">显示热区位置</button>
+
   <div class="container">
     <header>
       <h1>Art Studio视觉GuideTour</h1>
@@ -460,37 +490,33 @@
       <div class="kv-container">
         <img src="huawei-mate70.jpg" alt="华为Mate70系列" class="kv-image" id="kv-image">
         
-        <!-- 保留原始Logo热区，其位置正常 -->
+        <!-- 保留LOGO热区位置 -->
         <div class="highlight-area" id="editable-logo" style="left: 83.1267%; top: 3.7604%; width: 14.603%; height: 8.95727%;">
           <div class="highlight-label">Logo</div>
         </div>
         
-        <!-- 产品传播名热区 - 更新为精确位置 -->
+        <!-- 尝试不同的热区位置 -->
+        <!-- 一组位置 -->
         <div class="highlight-area" id="editable-slogan" style="left: 63%; top: 30%; width: 34%; height: 8%;">
           <div class="highlight-label">产品传播名</div>
         </div>
         
-        <!-- XMAGE字标热区 - 更新为精确位置 -->
         <div class="highlight-area" id="editable-xmage" style="left: 83%; top: 34%; width: 7%; height: 3%;">
           <div class="highlight-label">XMAGE字标</div>
         </div>
         
-        <!-- SLOGAN热区 - 更新为精确位置 -->
         <div class="highlight-area" id="slogan-area" style="left: 63%; top: 39%; width: 34%; height: 8%;">
           <div class="highlight-label">SLOGAN</div>
         </div>
         
-        <!-- 卖点KSP热区 - 更新为精确位置 -->
         <div class="highlight-area" id="editable-feature-text" style="left: 63%; top: 48%; width: 34%; height: 5%;">
           <div class="highlight-label">卖点KSP</div>
         </div>
         
-        <!-- HOS标志热区 - 更新为精确位置 -->
         <div class="highlight-area" id="editable-hotspot-1" style="left: 73%; top: 66%; width: 24%; height: 5%;">
           <div class="highlight-label">HOS标志</div>
         </div>
         
-        <!-- Disclaimer热区 - 更新为精确位置 -->
         <div class="highlight-area" id="editable-hotspot-2" style="left: 63%; top: 73%; width: 34%; height: 7%;">
           <div class="highlight-label">Disclaimer</div>
         </div>
@@ -522,6 +548,7 @@
       const infoTitle = document.getElementById('info-title');
       const infoContent = document.getElementById('info-content');
       const tooltip = document.getElementById('tooltip');
+      const debugButton = document.getElementById('debug-button');
       
       // 所有热区元素
       const highlightAreas = document.querySelectorAll('.highlight-area');
@@ -723,16 +750,16 @@
         }, 500);
       }, 3000);
       
-      // 热区事件处理 - 简化逻辑，去除防抖
+      // 热区事件处理
       highlightAreas.forEach(area => {
-        // 鼠标进入热区 - 直接处理
+        // 鼠标进入热区
         area.addEventListener('mouseenter', function() {
           if (!activeArea) {
             showAreaInfo(this.id);
           }
         });
         
-        // 鼠标离开热区 - 直接处理
+        // 鼠标离开热区
         area.addEventListener('mouseleave', function() {
           if (!activeArea) {
             showDefaultInfo();
@@ -767,6 +794,48 @@
           document.getElementById(activeArea).classList.remove('active');
           activeArea = null;
           showDefaultInfo();
+        }
+      });
+      
+      // 简易调试模式 - 显示所有热区
+      debugButton.addEventListener('click', function() {
+        const isDebugMode = this.textContent === '隐藏热区位置';
+        
+        if (isDebugMode) {
+          // 关闭调试模式
+          this.textContent = '显示热区位置';
+          this.style.backgroundColor = '#5D5CDE';
+          
+          // 隐藏热区边框和信息
+          highlightAreas.forEach(area => {
+            area.style.border = '2px solid transparent';
+            area.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+            
+            // 移除位置信息
+            const areaInfo = area.querySelector('.area-info');
+            if (areaInfo) {
+              areaInfo.remove();
+            }
+          });
+        } else {
+          // 开启调试模式
+          this.textContent = '隐藏热区位置';
+          this.style.backgroundColor = '#e74c3c';
+          
+          // 显示所有热区
+          highlightAreas.forEach(area => {
+            area.style.border = '2px dashed red';
+            area.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+            
+            // 添加位置信息
+            const areaInfo = document.createElement('div');
+            areaInfo.className = 'area-info';
+            areaInfo.textContent = area.id;
+            area.appendChild(areaInfo);
+          });
+          
+          // 提示用户如何调整
+          alert('已显示所有热区！请记下当前位置，然后手动调整热区位置代码。');
         }
       });
       
