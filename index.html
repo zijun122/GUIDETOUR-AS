@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://qph.cf2.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Art Studio视觉GuideTour</title>
@@ -29,6 +29,10 @@
       --button-radius: 8px;
       --card-shadow: 0 1px 8px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
       --dark-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+
+      /* 图片原始尺寸 - 用于计算比例 */
+      --image-width: 2001px;
+      --image-height: 1000px;
     }
     
     /* 基础样式 */
@@ -97,15 +101,20 @@
       }
     }
     
-    /* KV图片区域 - 修改为更简单的定位系统 */
+    /* KV图片区域 - 关键修改：固定宽高比与原图一致 */
     .kv-container {
       flex: 1;
       position: relative;
       border-radius: var(--border-radius);
       overflow: hidden;
       box-shadow: var(--card-shadow);
-      min-height: 300px;
       background-color: var(--bg-light);
+      
+      /* 关键修改：设置固定宽高比与原图相同 */
+      aspect-ratio: 2001/1000;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
     }
     
     body.dark .kv-container {
@@ -115,11 +124,12 @@
     
     .kv-image {
       width: 100%;
-      height: auto;
+      height: 100%;
       display: block;
+      object-fit: cover; /* 确保图片填满容器 */
     }
     
-    /* 热区样式 - 使用直接的百分比定位 */
+    /* 热区样式 */
     .highlight-area {
       position: absolute;
       border: 2px solid transparent;
@@ -127,26 +137,37 @@
       cursor: pointer;
       z-index: 10;
       border-radius: 8px;
+      transition: all 0.15s ease;
     }
     
     .highlight-area:hover {
-      border-color: var(--gray-900);
-      background-color: rgba(0, 0, 0, 0.08);
+      border-color: #007AFF;
+      background-color: rgba(0, 122, 255, 0.15);
     }
     
     .highlight-area.active {
-      border-color: var(--gray-900);
-      background-color: rgba(0, 0, 0, 0.12);
+      border-color: #007AFF;
+      background-color: rgba(0, 122, 255, 0.15);
+    }
+    
+    .highlight-area.locked {
+      border-color: #FF3B30;
+      background-color: rgba(255, 59, 48, 0.15);
     }
     
     body.dark .highlight-area:hover {
-      border-color: var(--gray-100);
-      background-color: rgba(255, 255, 255, 0.15);
+      border-color: #0A84FF;
+      background-color: rgba(10, 132, 255, 0.2);
     }
     
     body.dark .highlight-area.active {
-      border-color: var(--gray-100);
-      background-color: rgba(255, 255, 255, 0.2);
+      border-color: #0A84FF;
+      background-color: rgba(10, 132, 255, 0.2);
+    }
+    
+    body.dark .highlight-area.locked {
+      border-color: #FF453A;
+      background-color: rgba(255, 69, 58, 0.2);
     }
     
     /* 高亮区域标签 */
@@ -163,6 +184,7 @@
       opacity: 0;
       letter-spacing: 0.3px;
       pointer-events: none;
+      transition: opacity 0.15s ease;
     }
     
     body.dark .highlight-label {
@@ -171,7 +193,8 @@
     }
     
     .highlight-area:hover .highlight-label,
-    .highlight-area.active .highlight-label {
+    .highlight-area.active .highlight-label,
+    .highlight-area.locked .highlight-label {
       opacity: 1;
     }
     
@@ -429,6 +452,7 @@
       -webkit-backdrop-filter: blur(8px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       pointer-events: none;
+      transition: opacity 0.3s ease;
     }
     
     body.dark .tooltip {
@@ -460,32 +484,32 @@
       <div class="kv-container" id="kv-container">
         <img src="huawei-mate70.jpg" alt="华为Mate70系列" class="kv-image" id="kv-image">
         
-        <!-- 使用直接百分比定位，不再需要动态调整 -->
-        <div class="highlight-area" id="hotspot-logo" style="left: 83.15%; top: 3.1%; width: 14.603%; height: 8.95727%;">
+        <!-- 热区定义 - 使用简单直观的id，不使用editable前缀 -->
+        <div class="highlight-area" id="logo" style="left: 83.15%; top: 3.1%; width: 14.603%; height: 8.95727%;">
           <div class="highlight-label">Logo</div>
         </div>
 
-        <div class="highlight-area" id="hotspot-product-name" style="left: 60.16%; top: 34.14%; width: 31.95%; height: 6.91%;">
+        <div class="highlight-area" id="product-name" style="left: 60.16%; top: 34.14%; width: 31.95%; height: 6.91%;">
           <div class="highlight-label">产品传播名</div>
         </div>
 
-        <div class="highlight-area" id="hotspot-xmage" style="left: 87.46%; top: 41.95%; width: 7%; height: 3%;">
+        <div class="highlight-area" id="xmage" style="left: 87.46%; top: 41.95%; width: 7%; height: 3%;">
           <div class="highlight-label">XMAGE字标</div>
         </div>
 
-        <div class="highlight-area" id="hotspot-slogan" style="left: 64.57%; top: 45.96%; width: 22.92%; height: 9.97%;">
+        <div class="highlight-area" id="slogan" style="left: 64.57%; top: 45.96%; width: 22.92%; height: 9.97%;">
           <div class="highlight-label">SLOGAN</div>
         </div>
 
-        <div class="highlight-area" id="hotspot-feature" style="left: 60.54%; top: 59.12%; width: 32%; height: 5%;">
+        <div class="highlight-area" id="feature-text" style="left: 60.54%; top: 59.12%; width: 32%; height: 5%;">
           <div class="highlight-label">卖点KSP</div>
         </div>
 
-        <div class="highlight-area" id="hotspot-harmony" style="left: 84.4%; top: 83.38%; width: 14%; height: 5%;">
+        <div class="highlight-area" id="hos-badge" style="left: 84.4%; top: 83.38%; width: 14%; height: 5%;">
           <div class="highlight-label">HOS标志</div>
         </div>
 
-        <div class="highlight-area" id="hotspot-disclaimer" style="left: 74.48%; top: 90.36%; width: 24%; height: 5%;">
+        <div class="highlight-area" id="disclaimer" style="left: 74.48%; top: 90.36%; width: 24%; height: 5%;">
           <div class="highlight-label">Disclaimer</div>
         </div>
         
@@ -516,16 +540,19 @@
       const infoTitle = document.getElementById('info-title');
       const infoContent = document.getElementById('info-content');
       const tooltip = document.getElementById('tooltip');
+      const kvImage = document.getElementById('kv-image');
+      const kvContainer = document.getElementById('kv-container');
       
       // 所有热区元素
       const highlightAreas = document.querySelectorAll('.highlight-area');
       
-      // 当前激活的热区
-      let activeArea = null;
+      // 当前激活的热区 - 重要：使用两个变量分别跟踪区域和锁定状态
+      let activeHighlightArea = null;
+      let isAreaLocked = false;
       
-      // 定义每个热区的内容 - 使用新的ID
+      // 定义每个热区的内容 - 修改键名，与HTML中ID完全一致
       const areaContents = {
-        'hotspot-logo': {
+        'logo': {
           title: 'HUAWEI LOGO',
           content: `
             <div class="info-item">
@@ -545,7 +572,7 @@
             </div>
           `
         },
-        'hotspot-product-name': {
+        'product-name': {
           title: '产品传播名',
           content: `
             <div class="info-item">
@@ -572,7 +599,7 @@
             </div>
           `
         },
-        'hotspot-xmage': {
+        'xmage': {
           title: 'XMAGE字标',
           content: `
             <div class="info-item">
@@ -603,7 +630,7 @@
             </div>
           `
         },
-        'hotspot-slogan': {
+        'slogan': {
           title: 'SLOGAN',
           content: `
             <div class="info-item">
@@ -631,7 +658,7 @@
             </div>
           `
         },
-        'hotspot-feature': {
+        'feature-text': {
           title: '卖点KSP',
           content: `
             <div class="info-item">
@@ -659,7 +686,7 @@
             </div>
           `
         },
-        'hotspot-harmony': {
+        'hos-badge': {
           title: 'App Gallery/HOS标志',
           content: `
             <div class="info-item">
@@ -682,7 +709,7 @@
             </div>
           `
         },
-        'hotspot-disclaimer': {
+        'disclaimer': {
           title: 'Disclaimer',
           content: `
             <div class="info-item">
@@ -706,8 +733,9 @@
         }
       };
       
-      // 初始化主题
-      initTheme();
+      // 添加调试日志
+      console.log('定义的热区内容键:', Object.keys(areaContents));
+      console.log('网页中的热区ID列表:', Array.from(highlightAreas).map(area => area.id));
       
       // 提示文本定时隐藏
       setTimeout(() => {
@@ -717,19 +745,26 @@
         }, 500);
       }, 3000);
       
-      // 热区事件处理
+      // 为所有热区添加事件，确保IDs直接匹配
       highlightAreas.forEach(area => {
+        const areaId = area.id;
+        
+        // 添加调试信息，确认每个热区是否有对应内容
+        console.log(`设置热区 ${areaId} 的事件，内容是否存在:`, !!areaContents[areaId]);
+        
         // 鼠标进入热区
-        area.addEventListener('mouseenter', function() {
-          if (!activeArea) {
-            showAreaInfo(this.id);
+        area.addEventListener('mouseenter', function(e) {
+          console.log('鼠标进入:', areaId, '锁定状态:', isAreaLocked);
+          if (!isAreaLocked) {
+            showAreaInfo(areaId, false);
           }
         });
         
         // 鼠标离开热区
-        area.addEventListener('mouseleave', function() {
-          if (!activeArea) {
-            showDefaultInfo();
+        area.addEventListener('mouseleave', function(e) {
+          console.log('鼠标离开:', areaId, '锁定状态:', isAreaLocked);
+          if (!isAreaLocked) {
+            clearAreaInfo(areaId);
           }
         });
         
@@ -738,29 +773,32 @@
           e.preventDefault();
           e.stopPropagation();
           
-          if (activeArea === this.id) {
-            // 再次点击已激活区域，取消锁定
-            activeArea = null;
-            this.classList.remove('active');
+          console.log('点击热区:', areaId, '当前锁定状态:', isAreaLocked, '当前激活区域:', activeHighlightArea);
+          
+          if (isAreaLocked && activeHighlightArea === areaId) {
+            // 再次点击已锁定区域，取消锁定
+            console.log('解除锁定区域:', areaId);
+            isAreaLocked = false;
+            activeHighlightArea = null;
+            this.classList.remove('active', 'locked');
             showDefaultInfo();
           } else {
             // 锁定新区域
-            if (activeArea) {
-              document.getElementById(activeArea).classList.remove('active');
-            }
-            activeArea = this.id;
-            this.classList.add('active');
-            showAreaInfo(this.id);
+            console.log('锁定新区域:', areaId);
+            resetAllHighlightAreas();
+            activeHighlightArea = areaId;
+            isAreaLocked = true;
+            this.classList.add('active', 'locked');
+            showAreaInfo(areaId, true);
           }
         });
       });
       
       // 点击图片空白区域，取消锁定
-      document.getElementById('kv-image').addEventListener('click', function(e) {
-        if (e.target === this && activeArea) {
-          document.getElementById(activeArea).classList.remove('active');
-          activeArea = null;
-          showDefaultInfo();
+      kvContainer.addEventListener('click', function(e) {
+        if (e.target === kvImage || e.target === this) {
+          console.log('点击空白区域');
+          clearAllHighlights();
         }
       });
       
@@ -779,17 +817,72 @@
       });
       
       // 显示热区信息
-      function showAreaInfo(areaId) {
+      function showAreaInfo(areaId, shouldLock = false) {
+        console.log(`显示热区信息 - ID: ${areaId}, 是否锁定: ${shouldLock}`);
+        
         const areaData = areaContents[areaId];
         if (areaData) {
+          console.log('找到内容:', areaData.title);
+          
+          // 更新侧边栏内容
           infoTitle.textContent = areaData.title;
           infoContent.innerHTML = areaData.content;
           infoContent.scrollTop = 0;
+        } else {
+          console.error('找不到热区内容:', areaId);
         }
+      }
+      
+      // 清除特定热区信息
+      function clearAreaInfo(areaId) {
+        console.log(`清除热区信息 - ID: ${areaId}, 当前锁定状态: ${isAreaLocked}`);
+        
+        // 如果当前区域已锁定，不清除
+        if (isAreaLocked) return;
+        
+        // 如果当前激活区域就是要清除的区域，则清除激活状态
+        if (activeHighlightArea === areaId) {
+          const element = document.getElementById(areaId);
+          if (element) {
+            element.classList.remove('active', 'locked');
+          }
+          
+          activeHighlightArea = null;
+          showDefaultInfo();
+        }
+      }
+      
+      // 重置所有高亮区域
+      function resetAllHighlightAreas() {
+        console.log('重置所有高亮区域');
+        
+        document.querySelectorAll('.highlight-area').forEach(area => {
+          area.classList.remove('active', 'locked');
+        });
+        
+        activeHighlightArea = null;
+        isAreaLocked = false;
+      }
+      
+      // 清除所有高亮状态
+      function clearAllHighlights() {
+        console.log('清除所有高亮状态');
+        
+        if (isAreaLocked && activeHighlightArea) {
+          const element = document.getElementById(activeHighlightArea);
+          if (element) {
+            element.classList.remove('active', 'locked');
+          }
+        }
+        
+        resetAllHighlightAreas();
+        showDefaultInfo();
       }
       
       // 显示默认信息
       function showDefaultInfo() {
+        console.log('显示默认信息');
+        
         infoTitle.textContent = '视觉设计规范';
         infoContent.innerHTML = `
           <div class="info-default">
@@ -842,6 +935,9 @@
           darkIcon.classList.add('hidden');
         }
       }
+      
+      // 初始化主题
+      initTheme();
     });
   </script>
 
