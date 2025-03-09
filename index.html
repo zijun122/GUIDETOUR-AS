@@ -460,32 +460,32 @@
       <div class="kv-container" id="kv-container">
         <img src="huawei-mate70.jpg" alt="华为Mate70系列" class="kv-image" id="kv-image">
         
-        <!-- 使用原始热区位置代码，位置会通过JavaScript动态调整 -->
-        <div class="highlight-area" id="editable-logo" data-left="83.15" data-top="3.1" data-width="14.603" data-height="8.95727">
+        <!-- 使用更清晰、一致的ID命名 -->
+        <div class="highlight-area" id="hotspot-logo" data-left="83.15" data-top="3.1" data-width="14.603" data-height="8.95727">
           <div class="highlight-label">Logo</div>
         </div>
 
-        <div class="highlight-area" id="editable-slogan" data-left="60.16" data-top="34.14" data-width="31.95" data-height="6.91">
+        <div class="highlight-area" id="hotspot-product-name" data-left="60.16" data-top="34.14" data-width="31.95" data-height="6.91">
           <div class="highlight-label">产品传播名</div>
         </div>
 
-        <div class="highlight-area" id="editable-xmage" data-left="87.46" data-top="41.95" data-width="7" data-height="3">
+        <div class="highlight-area" id="hotspot-xmage" data-left="87.46" data-top="41.95" data-width="7" data-height="3">
           <div class="highlight-label">XMAGE字标</div>
         </div>
 
-        <div class="highlight-area" id="slogan-area" data-left="64.57" data-top="45.96" data-width="22.92" data-height="9.97">
+        <div class="highlight-area" id="hotspot-slogan" data-left="64.57" data-top="45.96" data-width="22.92" data-height="9.97">
           <div class="highlight-label">SLOGAN</div>
         </div>
 
-        <div class="highlight-area" id="editable-feature-text" data-left="60.54" data-top="59.12" data-width="32" data-height="5">
+        <div class="highlight-area" id="hotspot-feature" data-left="60.54" data-top="59.12" data-width="32" data-height="5">
           <div class="highlight-label">卖点KSP</div>
         </div>
 
-        <div class="highlight-area" id="editable-hotspot-1" data-left="84.4" data-top="83.38" data-width="14" data-height="5">
+        <div class="highlight-area" id="hotspot-harmony" data-left="84.4" data-top="83.38" data-width="14" data-height="5">
           <div class="highlight-label">HOS标志</div>
         </div>
 
-        <div class="highlight-area" id="editable-hotspot-2" data-left="74.48" data-top="90.36" data-width="24" data-height="5">
+        <div class="highlight-area" id="hotspot-disclaimer" data-left="74.48" data-top="90.36" data-width="24" data-height="5">
           <div class="highlight-label">Disclaimer</div>
         </div>
         
@@ -525,13 +525,13 @@
       // 当前激活的热区
       let activeArea = null;
       
-      // 图片原始尺寸 - 根据您的说明，这是您提供的实际图片尺寸
+      // 图片原始尺寸
       const originalImageWidth = 2001;
       const originalImageHeight = 1000;
       
-      // 定义每个热区的内容
+      // 定义每个热区的内容 - 使用新的ID
       const areaContents = {
-        'editable-logo': {
+        'hotspot-logo': {
           title: 'HUAWEI LOGO',
           content: `
             <div class="info-item">
@@ -551,7 +551,7 @@
             </div>
           `
         },
-        'editable-slogan': {
+        'hotspot-product-name': {
           title: '产品传播名',
           content: `
             <div class="info-item">
@@ -578,7 +578,7 @@
             </div>
           `
         },
-        'editable-xmage': {
+        'hotspot-xmage': {
           title: 'XMAGE字标',
           content: `
             <div class="info-item">
@@ -609,7 +609,7 @@
             </div>
           `
         },
-        'slogan-area': {
+        'hotspot-slogan': {
           title: 'SLOGAN',
           content: `
             <div class="info-item">
@@ -637,7 +637,7 @@
             </div>
           `
         },
-        'editable-feature-text': {
+        'hotspot-feature': {
           title: '卖点KSP',
           content: `
             <div class="info-item">
@@ -665,7 +665,7 @@
             </div>
           `
         },
-        'editable-hotspot-1': {
+        'hotspot-harmony': {
           title: 'App Gallery/HOS标志',
           content: `
             <div class="info-item">
@@ -688,7 +688,7 @@
             </div>
           `
         },
-        'editable-hotspot-2': {
+        'hotspot-disclaimer': {
           title: 'Disclaimer',
           content: `
             <div class="info-item">
