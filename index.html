@@ -88,12 +88,12 @@
       color: var(--gray-400);
     }
     
-    /* 主内容区域 — 修改 align-items 防止拉伸 */
+    /* 主内容区域 — 设置 align-items 防止拉伸 */
     .main-content {
       display: flex;
       flex-direction: column;
       gap: 28px;
-      align-items: flex-start; /* 避免信息侧栏影响左侧KV尺寸 */
+      align-items: flex-start;
     }
     
     @media (min-width: 768px) {
@@ -103,20 +103,20 @@
       }
     }
     
-    /* KV图片区域 — 固定宽高比例 */
+    /* KV图片区域 — 固定宽高，不受侧栏内容影响 */
     .kv-container {
       flex: 1;
+      flex-shrink: 0; /* 锁定KV区域宽高，不允许被压缩 */
       position: relative;
       border-radius: var(--border-radius);
       overflow: hidden;
       box-shadow: var(--card-shadow);
       background-color: var(--bg-light);
       
-      /* 固定宽高比，确保位置不变 */
-      aspect-ratio: 2001/1000;
+      /* 使用固定高度方式计算（保持2001:1000的比例） */
       width: 100%;
+      height: calc(100vw * (1000 / 2001));
       max-width: 100%;
-      height: auto;
     }
     
     body.dark .kv-container {
@@ -131,10 +131,9 @@
       object-fit: cover;
     }
     
-    /* 热区样式 */
+    /* 热区样式 — active状态仅改变颜色，不改变尺寸 */
     .highlight-area {
       position: absolute;
-      /* active 状态仅改变颜色，不增加实际尺寸 */
       border: 2px solid transparent;
       background-color: rgba(0, 0, 0, 0);
       cursor: pointer;
@@ -473,7 +472,7 @@
       <div class="kv-container" id="kv-container">
         <img src="huawei-mate70.jpg" alt="华为Mate70系列" class="kv-image" id="kv-image">
         
-        <!-- 热区定义：直接采用《未命名11112 2》的百分比定义 -->
+        <!-- 热区定义，根据《未命名11112 2》原始百分比定义 -->
         <div class="highlight-area" id="editable-logo" style="left: 83.15%; top: 3.1%; width: 14.603%; height: 8.95727%;">
           <div class="highlight-label">Logo</div>
         </div>
@@ -534,10 +533,10 @@
       // 获取所有热区元素
       const highlightAreas = document.querySelectorAll('.highlight-area');
       
-      // 当前激活的热区（锁定状态）
+      // 当前激活状态的热区ID（锁定状态）
       let activeArea = null;
       
-      // 定义各热区的内容（与原文件内容保持一致）
+      // 定义每个热区对应的内容
       const areaContents = {
         "editable-logo": {
           title: "HUAWEI LOGO",
@@ -566,9 +565,9 @@
               <div class="info-item-title">位置间距</div>
               <div class="info-item-content">
                 <ul class="numbered-list">
-                  <li>以华为LOGO中的 “H” 高度为单位，产品名与广告语间距为1.50H；产品名与XMAGE Logo间距为0.25H</li>
-                  <li>产品名与产品卖点左右对齐</li>
-                  <li>产品名与广告语及产品卖点居中对齐</li>
+                  <li>以华为LOGO中的 “H” 高度为单位，产品名与广告语间隔1.50H；产品名与XMAGE Logo间隔0.25H</li>
+                  <li>确保产品名与产品卖点左右对齐</li>
+                  <li>产品名、广告语与卖点居中对齐</li>
                 </ul>
               </div>
             </div>
@@ -581,7 +580,7 @@
             <div class="info-item">
               <div class="info-item-title">KV文字组合</div>
               <div class="info-item-content">
-                <p>产品名、广告语及卖点组合时，文本组合宽度不超过整体画面宽度的31%，并保持居中。</p>
+                <p>组合文本宽度不超整体画面宽度的31%，且须保持居中。</p>
               </div>
             </div>
           `
@@ -592,7 +591,7 @@
             <div class="info-item">
               <div class="info-item-title">位置间距</div>
               <div class="info-item-content">
-                <p>XMAGE Logo高度为0.50H；与广告语间距为0.75H，广告语与产品卖点间距为1.50H</p>
+                <p>XMAGE Logo高度为0.50H；与广告语间距0.75H，广告语与卖点间距1.50H</p>
               </div>
             </div>
             <div class="info-item">
@@ -626,21 +625,21 @@
                 <ul class="numbered-list">
                   <li>中文：方正兰亭黑简体常规</li>
                   <li>英文：Huawei Sans Regular</li>
-                  <li>更多字体规范见（中英文）使用指导细则 <a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&amp;cata=595173" target="_blank">查看链接</a></li>
-                  <li>版权字体模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></li>
+                  <li>更多规范详见使用指导细则 <a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&amp;cata=595173" target="_blank">查看链接</a></li>
+                  <li>版权模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></li>
                 </ul>
               </div>
             </div>
             <div class="info-item">
               <div class="info-item-title">位置间距</div>
               <div class="info-item-content">
-                <p>以Logo中 “H” 高度为单位，产品名与广告语间距为1.50H，同时与产品卖点左右对齐</p>
+                <p>以Logo中 “H” 高度为基准，间隔1.50H，且产品名与卖点左右对齐</p>
               </div>
             </div>
             <div class="info-item">
               <div class="info-item-title">KV文字组合</div>
               <div class="info-item-content">
-                <p>组合文本须保持上下与左右居中，宽度不超过整体宽度的31%</p>
+                <p>文字组合须居中显示，宽度不超整体画面宽度的31%</p>
               </div>
             </div>
           `
@@ -654,21 +653,21 @@
                 <ul class="numbered-list">
                   <li>中文：方正兰亭黑简体常规</li>
                   <li>英文：Huawei Sans Regular</li>
-                  <li>更多字体规范见（中英文）使用指导细则 <a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&amp;cata=595173" target="_blank">查看链接</a></li>
-                  <li>版权字体模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></li>
+                  <li>更多规范详见使用指导细则 <a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&amp;cata=595173" target="_blank">查看链接</a></li>
+                  <li>版权模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></li>
                 </ul>
               </div>
             </div>
             <div class="info-item">
               <div class="info-item-title">位置间距</div>
               <div class="info-item-content">
-                <p>产品名、广告语与卖点需居中对齐；广告语左右缩进均为2.35H</p>
+                <p>产品名、广告语与卖点须居中显示；广告语左右缩进均为2.35H</p>
               </div>
             </div>
             <div class="info-item">
               <div class="info-item-title">KV文字组合</div>
               <div class="info-item-content">
-                <p>文本组合规定宽度不超过画面宽度的31%，且不得拆分或任意改变颜色</p>
+                <p>组合文本宽度规定不大于整体画面31%，不得拆分、更改颜色</p>
               </div>
             </div>
           `
@@ -706,24 +705,24 @@
                   <li>中文：方正兰亭黑简体，45px，行距75px</li>
                   <li>英文：Huawei Sans Regular, 54px，行距67px</li>
                   <li>更多规范：<a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&amp;cata=595173" target="_blank">查看链接</a></li>
-                  <li>版权字体模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></li>
+                  <li>版权模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></li>
                 </ul>
               </div>
             </div>
             <div class="info-item">
               <div class="info-item-title">位置间距</div>
               <div class="info-item-content">
-                <p>免责声明位于右下角，距离右侧为2X</p>
+                <p>免责声明位于右下角，距离右边为2X</p>
               </div>
             </div>
           `
         }
       };
       
-      // 初始化主题逻辑
+      // 初始化主题
       initTheme();
   
-      // 延时隐藏提示工具
+      // 延时隐藏提示
       setTimeout(() => {
         tooltip.style.opacity = '0';
         setTimeout(() => {
@@ -733,21 +732,18 @@
   
       // 为每个热区绑定事件
       highlightAreas.forEach(area => {
-        // 悬浮显示（仅当未被锁定时）
         area.addEventListener('mouseenter', function() {
           if (!activeArea) {
             showAreaInfo(this.id);
           }
         });
   
-        // 离开恢复默认显示（仅当未锁定时）
         area.addEventListener('mouseleave', function() {
           if (!activeArea) {
             showDefaultInfo();
           }
         });
   
-        // 点击切换锁定状态
         area.addEventListener('click', function(e) {
           e.preventDefault();
           e.stopPropagation();
@@ -757,8 +753,8 @@
             showDefaultInfo();
           } else {
             if (activeArea) {
-              const prevArea = document.getElementById(activeArea);
-              if (prevArea) prevArea.classList.remove('active');
+              const prev = document.getElementById(activeArea);
+              if (prev) prev.classList.remove('active');
             }
             activeArea = this.id;
             this.classList.add('active');
@@ -767,17 +763,17 @@
         });
       });
   
-      // 点击图片空白区域取消任何锁定状态
+      // 点击底图空白区域取消激活
       kvImage.addEventListener('click', function(e) {
         if (e.target === this && activeArea) {
-          const curArea = document.getElementById(activeArea);
-          if (curArea) curArea.classList.remove('active');
+          const cur = document.getElementById(activeArea);
+          if (cur) cur.classList.remove('active');
           activeArea = null;
           showDefaultInfo();
         }
       });
   
-      // 主题切换按钮事件
+      // 主题切换
       themeToggle.addEventListener('click', function() {
         document.body.classList.toggle('dark');
         updateThemeIcon();
@@ -790,7 +786,7 @@
         }
       });
   
-      // 根据区域ID显示对应信息
+      // 根据区域ID显示内容
       function showAreaInfo(areaId) {
         const data = areaContents[areaId];
         if (data) {
@@ -798,28 +794,28 @@
           infoContent.innerHTML = data.content;
           infoContent.scrollTop = 0;
         } else {
-          console.error('找不到区域内容：', areaId);
+          console.error('未找到区域内容：', areaId);
         }
       }
   
-      // 显示默认信息
+      // 默认显示信息
       function showDefaultInfo() {
         infoTitle.textContent = '视觉设计规范';
         infoContent.innerHTML = `
           <div class="info-default">
-            <p>将鼠标悬停在图片上的高亮区域<br>查看对应的设计规范与说明</p>
+            <p>将鼠标悬浮在图片上的高亮区域<br>查看对应的设计规范与说明</p>
           </div>
         `;
       }
   
-      // 初始化主题并监听系统偏好
+      // 初始化主题与监听系统偏好
       function initTheme() {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         try {
           if (typeof localStorage !== 'undefined') {
-            const stored = localStorage.getItem('theme');
-            if (stored) {
-              if (stored === 'dark') {
+            const saved = localStorage.getItem('theme');
+            if (saved) {
+              if (saved === 'dark') {
                 document.body.classList.add('dark');
               }
               updateThemeIcon();
@@ -827,7 +823,7 @@
             }
           }
         } catch (e) {
-          console.log('访问localStorage失败，使用系统偏好');
+          console.log('无法访问localStorage，使用系统偏好');
         }
         if (prefersDark) {
           document.body.classList.add('dark');
