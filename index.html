@@ -119,25 +119,39 @@
       object-fit: contain;
     }
     
-    /* 热区样式 - 黑白灰配色 */
+    /* 热区样式 - 解决闪烁问题 */
     .highlight-area {
       position: absolute;
       border: 2px solid transparent;
       background-color: rgba(0, 0, 0, 0);
-      transition: all 0.2s ease;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
       cursor: pointer;
       z-index: 10;
       border-radius: 8px;
+      /* 防止大小变化导致闪烁 */
+      transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
     
-    .highlight-area:hover, .highlight-area.active {
+    .highlight-area:hover {
       border-color: var(--gray-900);
       background-color: rgba(0, 0, 0, 0.08);
     }
     
-    body.dark .highlight-area:hover, body.dark .highlight-area.active {
+    .highlight-area.active {
+      border-color: var(--gray-900);
+      background-color: rgba(0, 0, 0, 0.12);
+    }
+    
+    body.dark .highlight-area:hover {
       border-color: var(--gray-100);
       background-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    body.dark .highlight-area.active {
+      border-color: var(--gray-100);
+      background-color: rgba(255, 255, 255, 0.2);
     }
     
     /* 高亮区域标签 */
@@ -154,6 +168,7 @@
       opacity: 0;
       transition: opacity 0.2s ease;
       letter-spacing: 0.3px;
+      pointer-events: none; /* 防止标签触发事件 */
     }
     
     body.dark .highlight-label {
@@ -295,10 +310,38 @@
     
     .info-item-content p {
       margin-bottom: 10px;
+      position: relative;
     }
     
     .info-item-content p:last-child {
       margin-bottom: 0;
+    }
+    
+    /* 有序列表样式 */
+    .numbered-list {
+      counter-reset: item;
+      list-style-type: none;
+      padding-left: 0;
+    }
+    
+    .numbered-list li {
+      counter-increment: item;
+      margin-bottom: 8px;
+      position: relative;
+      padding-left: 28px;
+    }
+    
+    .numbered-list li:before {
+      content: counter(item) ".";
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-weight: 500;
+      color: var(--gray-900);
+    }
+    
+    body.dark .numbered-list li:before {
+      color: var(--gray-300);
     }
     
     /* 主题切换按钮 */
@@ -390,6 +433,7 @@
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      pointer-events: none;
     }
     
     body.dark .tooltip {
@@ -421,38 +465,32 @@
       <div class="kv-container">
         <img src="huawei-mate70.jpg" alt="华为Mate70系列" class="kv-image" id="kv-image">
         
-        <!-- 华为LOGO热区 -->
-        <div class="highlight-area" id="logo-area" style="left: 83.1267%; top: 4.7604%; width: 14.603%; height: 8.95727%;">
+        <!-- 正确使用原来的ID和位置值 -->
+        <div class="highlight-area" id="editable-logo" style="left: 83.1267%; top: 3.7604%; width: 14.603%; height: 8.95727%;">
           <div class="highlight-label">Logo</div>
         </div>
         
-        <!-- 产品传播名热区 -->
-        <div class="highlight-area" id="product-name-area" style="left: 60.1617%; top: 33.0518%; width: 32.6819%; height: 7.9989%;">
+        <div class="highlight-area" id="editable-slogan" style="left: 60.1617%; top: 33.0518%; width: 32.6819%; height: 7.9989%;">
           <div class="highlight-label">产品传播名</div>
         </div>
         
-        <!-- XMAGE字标热区 -->
-        <div class="highlight-area" id="xmage-area" style="left: 86.9811%; top: 40.5106%; width: 7%; height: 3%;">
+        <div class="highlight-area" id="editable-xmage" style="left: 86.9811%; top: 40.5106%; width: 7%; height: 3%;">
           <div class="highlight-label">XMAGE字标</div>
         </div>
         
-        <!-- SLOGAN热区 -->
         <div class="highlight-area" id="slogan-area" style="left: 60.1617%; top: 40.5106%; width: 32.6819%; height: 7.9989%;">
           <div class="highlight-label">SLOGAN</div>
         </div>
         
-        <!-- 卖点KSP热区 -->
-        <div class="highlight-area" id="ksp-area" style="left: 60.1482%; top: 56.3858%; width: 32.9782%; height: 4.2353%;">
+        <div class="highlight-area" id="editable-feature-text" style="left: 60.1482%; top: 56.3858%; width: 32.9782%; height: 4.2353%;">
           <div class="highlight-label">卖点KSP</div>
         </div>
         
-        <!-- App Gallery/HOS标志热区 -->
-        <div class="highlight-area" id="os-area" style="left: 87.655%; top: 78.1462%; width: 10.1345%; height: 5.44574%;">
+        <div class="highlight-area" id="editable-hotspot-1" style="left: 87.655%; top: 78.1462%; width: 10.1345%; height: 5.44574%;">
           <div class="highlight-label">HOS标志</div>
         </div>
         
-        <!-- Disclaimer热区 -->
-        <div class="highlight-area" id="disclaimer-area" style="left: 80.8626%; top: 83.5429%; width: 17.6817%; height: 4.48737%;">
+        <div class="highlight-area" id="editable-hotspot-2" style="left: 80.8626%; top: 83.5429%; width: 17.6817%; height: 4.48737%;">
           <div class="highlight-label">Disclaimer</div>
         </div>
         
@@ -490,16 +528,21 @@
       // 当前激活的热区
       let activeArea = null;
       
-      // 定义每个热区的内容
+      // 添加防抖处理，防止闪烁
+      let debounceTimer = null;
+      
+      // 定义每个热区的内容 - 使用有序列表改进排版
       const areaContents = {
-        'logo-area': {
+        'editable-logo': {
           title: 'HUAWEI LOGO',
           content: `
             <div class="info-item">
               <div class="info-item-title">文件模板</div>
               <div class="info-item-content">
-                <p>①HUAWEI Logo（横版、竖版、字标）：<a href="https://3ms.huawei.com/documents/docinfo/389945973017399296" target="_blank">查看链接</a></p>
-                <p>②含LOGO的完稿标准模板：<a href="https://onebox.huawei.com/p/3b0870d8b3fb989b86045374ea9b54a2" target="_blank">查看链接</a></p>
+                <ul class="numbered-list">
+                  <li>HUAWEI Logo（横版、竖版、字标）：<a href="https://3ms.huawei.com/documents/docinfo/389945973017399296" target="_blank">查看链接</a></li>
+                  <li>含LOGO的完稿标准模板：<a href="https://onebox.huawei.com/p/3b0870d8b3fb989b86045374ea9b54a2" target="_blank">查看链接</a></li>
+                </ul>
               </div>
             </div>
             <div class="info-item">
@@ -510,15 +553,17 @@
             </div>
           `
         },
-        'product-name-area': {
+        'editable-slogan': {
           title: '产品传播名',
           content: `
             <div class="info-item">
               <div class="info-item-title">位置间距</div>
               <div class="info-item-content">
-                <p>以华为LOGO中"H"高度为一个基本单位尺寸，产品名与广告语行间距为1.50H；产品名与XMAGE Logo行间距为0.25H</p>
-                <p>产品名与产品卖点左、右侧等宽对齐；</p>
-                <p>产品名与广告语、与产品卖点居中对齐。</p>
+                <ul class="numbered-list">
+                  <li>以华为LOGO中"H"高度为一个基本单位尺寸，产品名与广告语行间距为1.50H；产品名与XMAGE Logo行间距为0.25H</li>
+                  <li>产品名与产品卖点左、右侧等宽对齐</li>
+                  <li>产品名与广告语、与产品卖点居中对齐</li>
+                </ul>
               </div>
             </div>
             <div class="info-item">
@@ -535,7 +580,7 @@
             </div>
           `
         },
-        'xmage-area': {
+        'editable-xmage': {
           title: 'XMAGE字标',
           content: `
             <div class="info-item">
@@ -547,17 +592,21 @@
             <div class="info-item">
               <div class="info-item-title">色值参考</div>
               <div class="info-item-content">
-                <p>PANTONE 186C</p>
-                <p>RGB 200/16/46</p>
-                <p>CMYK 27/100/86/0</p>
-                <p>HEX # CE0E2D</p>
+                <ul class="numbered-list">
+                  <li>PANTONE 186C</li>
+                  <li>RGB 200/16/46</li>
+                  <li>CMYK 27/100/86/0</li>
+                  <li>HEX # CE0E2D</li>
+                </ul>
               </div>
             </div>
             <div class="info-item">
               <div class="info-item-title">相关资源</div>
               <div class="info-item-content">
-                <p>字标模板：<a href="https://3ms.huawei.com/documents/docinfo/775070380629831680?attachmentIdx=3" target="_blank">查看链接</a></p>
-                <p>更多使用规范详见《XMAGE Awards 2024视觉识别规范》：<a href="https://3ms.huawei.com/documents/docinfo/775070380629831680" target="_blank">查看链接</a></p>
+                <ul class="numbered-list">
+                  <li>字标模板：<a href="https://3ms.huawei.com/documents/docinfo/775070380629831680?attachmentIdx=3" target="_blank">查看链接</a></li>
+                  <li>更多使用规范详见《XMAGE Awards 2024视觉识别规范》：<a href="https://3ms.huawei.com/documents/docinfo/775070380629831680" target="_blank">查看链接</a></li>
+                </ul>
               </div>
             </div>
           `
@@ -568,10 +617,12 @@
             <div class="info-item">
               <div class="info-item-title">字体要求</div>
               <div class="info-item-content">
-                <p>中文：方正兰亭黑简体常规</p>
-                <p>英文：Huawei Sans Regular</p>
-                <p>更多字体规范说明见公司字体 ( 中文&英文 ) 使用指导细则 V3.0 <a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&cata=595173" target="_blank">查看链接</a></p>
-                <p>华为所有版权字体模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></p>
+                <ul class="numbered-list">
+                  <li>中文：方正兰亭黑简体常规</li>
+                  <li>英文：Huawei Sans Regular</li>
+                  <li>更多字体规范说明见公司字体 ( 中文&英文 ) 使用指导细则 V3.0 <a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&cata=595173" target="_blank">查看链接</a></li>
+                  <li>华为所有版权字体模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></li>
+                </ul>
               </div>
             </div>
             <div class="info-item">
@@ -588,16 +639,18 @@
             </div>
           `
         },
-        'ksp-area': {
+        'editable-feature-text': {
           title: '卖点KSP',
           content: `
             <div class="info-item">
               <div class="info-item-title">字体要求</div>
               <div class="info-item-content">
-                <p>中文：方正兰亭黑简体常规</p>
-                <p>英文：Huawei Sans Regular</p>
-                <p>更多字体规范说明见公司字体 ( 中文&英文 ) 使用指导细则 V3.0 <a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&cata=595173" target="_blank">查看链接</a></p>
-                <p>华为所有版权字体模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></p>
+                <ul class="numbered-list">
+                  <li>中文：方正兰亭黑简体常规</li>
+                  <li>英文：Huawei Sans Regular</li>
+                  <li>更多字体规范说明见公司字体 ( 中文&英文 ) 使用指导细则 V3.0 <a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&cata=595173" target="_blank">查看链接</a></li>
+                  <li>华为所有版权字体模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></li>
+                </ul>
               </div>
             </div>
             <div class="info-item">
@@ -614,35 +667,41 @@
             </div>
           `
         },
-        'os-area': {
+        'editable-hotspot-1': {
           title: 'App Gallery/HOS标志',
           content: `
             <div class="info-item">
               <div class="info-item-title">HarmonyOS相关规范</div>
               <div class="info-item-content">
-                <p>HOS标志模板文件：<a href="https://onebox.huawei.com/p/b1fc470145b278b62581671c3fb6c838" target="_blank">查看链接</a></p>
-                <p>HOS标志位置间距：取华为LOGO标志中的字母"H"高度为X，HarmonyOS标志底部至免责声明距离为0.5X，具体底部高度可根据免责声明内容高度进行调整。在横版KV中，"HarmonyOS"高度为X，距离KV右侧距离为2X。</p>
+                <ul class="numbered-list">
+                  <li>HOS标志模板文件：<a href="https://onebox.huawei.com/p/b1fc470145b278b62581671c3fb6c838" target="_blank">查看链接</a></li>
+                  <li>HOS标志位置间距：取华为LOGO标志中的字母"H"高度为X，HarmonyOS标志底部至免责声明距离为0.5X，具体底部高度可根据免责声明内容高度进行调整。在横版KV中，"HarmonyOS"高度为X，距离KV右侧距离为2X。</li>
+                </ul>
               </div>
             </div>
             <div class="info-item">
               <div class="info-item-title">App Gallery相关规范</div>
               <div class="info-item-content">
-                <p>App Gallery标志模板文件：<a href="https://onebox.huawei.com/p/baa7f1f51272139c894523337e90a671" target="_blank">查看链接</a></p>
-                <p>App Gallery标志位置间距：取华为LOGO标志中的字母"H"高度为X，HarmonyOS标志底部至免责声明距离为0.5X，具体底部高度可根据免责声明内容高度进行调整。在横版KV中，"HarmonyOS"高度为X，距离KV右侧距离为2X。</p>
+                <ul class="numbered-list">
+                  <li>App Gallery标志模板文件：<a href="https://onebox.huawei.com/p/baa7f1f51272139c894523337e90a671" target="_blank">查看链接</a></li>
+                  <li>App Gallery标志位置间距：取华为LOGO标志中的字母"H"高度为X，HarmonyOS标志底部至免责声明距离为0.5X，具体底部高度可根据免责声明内容高度进行调整。在横版KV中，"HarmonyOS"高度为X，距离KV右侧距离为2X。</li>
+                </ul>
               </div>
             </div>
           `
         },
-        'disclaimer-area': {
+        'editable-hotspot-2': {
           title: 'Disclaimer',
           content: `
             <div class="info-item">
               <div class="info-item-title">字体要求</div>
               <div class="info-item-content">
-                <p>中文：方正兰亭黑简体，字体大小为45px，间距为0，行间距为75px</p>
-                <p>英文：Huawei Sans Regular, 字体大小为54px，间距为0，行间距为67px</p>
-                <p>更多字体规范说明见公司字体 ( 中文&英文 ) 使用指导细则 V3.0 <a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&cata=595173" target="_blank">查看链接</a></p>
-                <p>华为所有版权字体模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></p>
+                <ul class="numbered-list">
+                  <li>中文：方正兰亭黑简体，字体大小为45px，间距为0，行间距为75px</li>
+                  <li>英文：Huawei Sans Regular, 字体大小为54px，间距为0，行间距为67px</li>
+                  <li>更多字体规范说明见公司字体 ( 中文&英文 ) 使用指导细则 V3.0 <a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&cata=595173" target="_blank">查看链接</a></li>
+                  <li>华为所有版权字体模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></li>
+                </ul>
               </div>
             </div>
             <div class="info-item">
@@ -669,23 +728,39 @@
         }, 500);
       }, 3000);
       
-      // 热区悬停和点击事件
+      // 热区悬停和点击事件 - 添加防抖处理
       highlightAreas.forEach(area => {
         // 鼠标进入热区
         area.addEventListener('mouseenter', function() {
-          showAreaInfo(this.id);
+          // 清除之前的防抖计时器
+          if (debounceTimer) clearTimeout(debounceTimer);
+          
+          // 设置新的计时器
+          debounceTimer = setTimeout(() => {
+            if (!activeArea) {
+              showAreaInfo(this.id);
+            }
+          }, 50); // 短暂延迟以防止闪烁
         });
         
         // 鼠标离开热区
         area.addEventListener('mouseleave', function() {
+          // 清除防抖计时器
+          if (debounceTimer) clearTimeout(debounceTimer);
+          
           // 如果没有激活的热区，恢复默认内容
           if (!activeArea) {
-            showDefaultInfo();
+            debounceTimer = setTimeout(() => {
+              showDefaultInfo();
+            }, 50); // 短暂延迟以防止闪烁
           }
         });
         
         // 点击热区
-        area.addEventListener('click', function() {
+        area.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
           if (activeArea === this.id) {
             // 再次点击已激活区域，取消锁定
             activeArea = null;
@@ -783,6 +858,9 @@
         if (areaData) {
           infoTitle.textContent = areaData.title;
           infoContent.innerHTML = areaData.content;
+          
+          // 滚动到顶部
+          infoContent.scrollTop = 0;
         }
       }
       
