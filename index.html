@@ -4,7 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Art Studio视觉GuideTour</title>
   <style>
-    /* 苹果设计风格变量 */
+    /* 基础变量 */
     :root {
       --sf-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
       --gray-50: #F9F9F9;
@@ -18,24 +18,19 @@
       --gray-800: #3A3A3C;
       --gray-900: #2C2C2E;
       --black: #1C1C1E;
-      
       --bg-light: #FFFFFF;
       --bg-dark: #000000;
       --text-light: #1C1C1E;
       --text-dark: #F2F2F7;
-      
       --border-radius: 14px;
       --border-radius-sm: 10px;
-      --button-radius: 8px;
       --card-shadow: 0 1px 8px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
-      --dark-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-
-      /* 图片原始尺寸 - 用于计算比例 */
-      --image-width: 2001px;
-      --image-height: 1000px;
+      --dark-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      /* 原图尺寸，用于计算比例 */
+      --image-width: 2001;
+      --image-height: 1000;
     }
     
-    /* 基础样式 */
     * {
       margin: 0;
       padding: 0;
@@ -52,7 +47,6 @@
       transition: background-color 0.3s, color 0.3s;
       padding: 28px;
     }
-    
     body.dark {
       background-color: var(--bg-dark);
       color: var(--text-dark);
@@ -63,19 +57,17 @@
       margin: 0 auto;
     }
     
-    /* 标题样式 */
+    /* 标题及副标题 */
     header {
       text-align: center;
       margin-bottom: 36px;
     }
-    
     h1 {
       font-size: 32px;
       font-weight: 600;
       margin-bottom: 12px;
       letter-spacing: -0.02em;
     }
-    
     .subtitle {
       font-size: 17px;
       color: var(--gray-700);
@@ -83,47 +75,36 @@
       max-width: 500px;
       margin: 0 auto;
     }
+    body.dark .subtitle { color: var(--gray-400); }
     
-    body.dark .subtitle {
-      color: var(--gray-400);
-    }
-    
-    /* 主内容区域 — 设置 align-items 防止拉伸 */
+    /* 采用CSS Grid布局，分离KV区域和侧栏 */
     .main-content {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: 1fr 380px;
       gap: 28px;
-      align-items: flex-start;
+      align-items: start;
     }
-    
-    @media (min-width: 768px) {
+    @media (max-width: 767px) {
       .main-content {
-        flex-direction: row;
-        align-items: flex-start;
+        grid-template-columns: 1fr;
       }
     }
     
-    /* KV图片区域 — 固定宽高，不受侧栏内容影响 */
+    /* KV区域：固定按原图比例显示，不受右侧干扰 */
     .kv-container {
-      flex: 1;
-      flex-shrink: 0; /* 锁定KV区域宽高，不允许被压缩 */
       position: relative;
       border-radius: var(--border-radius);
       overflow: hidden;
       box-shadow: var(--card-shadow);
       background-color: var(--bg-light);
-      
-      /* 使用固定高度方式计算（保持2001:1000的比例） */
       width: 100%;
-      height: calc(100vw * (1000 / 2001));
-      max-width: 100%;
+      /* 使用aspect-ratio保持2001:1000比例 */
+      aspect-ratio: 2001 / 1000;
     }
-    
     body.dark .kv-container {
       box-shadow: var(--dark-shadow);
       background-color: var(--black);
     }
-    
     .kv-image {
       width: 100%;
       height: 100%;
@@ -131,41 +112,34 @@
       object-fit: cover;
     }
     
-    /* 热区样式 — active状态仅改变颜色，不改变尺寸 */
+    /* 热区样式：仅改变颜色，不影响盒子尺寸 */
     .highlight-area {
       position: absolute;
       border: 2px solid transparent;
-      background-color: rgba(0, 0, 0, 0);
+      background-color: rgba(0,0,0,0);
       cursor: pointer;
       z-index: 10;
       border-radius: 8px;
     }
-    
     .highlight-area:hover {
       border-color: var(--gray-900);
-      background-color: rgba(0, 0, 0, 0.08);
+      background-color: rgba(0,0,0,0.08);
     }
-    
     .highlight-area.active {
       border-color: var(--gray-900);
-      background-color: rgba(0, 0, 0, 0.12);
+      background-color: rgba(0,0,0,0.12);
     }
-    
     body.dark .highlight-area:hover {
       border-color: var(--gray-100);
-      background-color: rgba(255, 255, 255, 0.15);
+      background-color: rgba(255,255,255,0.15);
     }
-    
     body.dark .highlight-area.active {
       border-color: var(--gray-100);
-      background-color: rgba(255, 255, 255, 0.2);
+      background-color: rgba(255,255,255,0.2);
     }
-    
-    /* 高亮区标签 */
     .highlight-label {
       position: absolute;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
       background-color: var(--gray-900);
       color: white;
       font-size: 11px;
@@ -176,70 +150,49 @@
       letter-spacing: 0.3px;
       pointer-events: none;
     }
-    
     body.dark .highlight-label {
       background-color: var(--gray-100);
       color: var(--black);
     }
-    
     .highlight-area:hover .highlight-label,
-    .highlight-area.active .highlight-label {
-      opacity: 1;
-    }
+    .highlight-area.active .highlight-label { opacity: 1; }
     
     /* 信息侧栏 */
     .info-sidebar {
-      flex: 0 0 380px;
       border-radius: var(--border-radius);
       background-color: var(--gray-50);
       box-shadow: var(--card-shadow);
       overflow: hidden;
       transition: all 0.3s ease;
-      height: fit-content;
       border: 1px solid var(--gray-200);
     }
-    
-    @media (max-width: 767px) {
-      .info-sidebar {
-        flex: 1;
-      }
-    }
-    
     body.dark .info-sidebar {
       background-color: var(--black);
       box-shadow: var(--dark-shadow);
       border-color: var(--gray-900);
     }
-    
     .info-header {
       padding: 20px 24px;
       border-bottom: 1px solid var(--gray-200);
       background-color: var(--bg-light);
     }
-    
     body.dark .info-header {
       border-bottom-color: var(--gray-900);
       background-color: var(--gray-900);
     }
-    
     .info-title {
       font-size: 18px;
       font-weight: 600;
       color: var(--text-light);
       letter-spacing: -0.01em;
     }
-    
-    body.dark .info-title {
-      color: var(--text-dark);
-    }
-    
+    body.dark .info-title { color: var(--text-dark); }
     .info-content {
       padding: 24px;
       font-size: 15px;
       max-height: 600px;
       overflow-y: auto;
     }
-    
     .info-default {
       color: var(--gray-600);
       text-align: center;
@@ -247,10 +200,7 @@
       font-size: 15px;
       line-height: 1.6;
     }
-    
-    body.dark .info-default {
-      color: var(--gray-500);
-    }
+    body.dark .info-default { color: var(--gray-500); }
     
     /* 链接样式 */
     a {
@@ -260,21 +210,9 @@
       border-bottom: 1px solid var(--gray-400);
       padding-bottom: 1px;
     }
-    
-    a:hover {
-      color: var(--black);
-      border-bottom-color: var(--black);
-    }
-    
-    body.dark a {
-      color: var(--gray-300);
-      border-bottom-color: var(--gray-600);
-    }
-    
-    body.dark a:hover {
-      color: var(--gray-100);
-      border-bottom-color: var(--gray-100);
-    }
+    a:hover { color: var(--black); border-bottom-color: var(--black); }
+    body.dark a { color: var(--gray-300); border-bottom-color: var(--gray-600); }
+    body.dark a:hover { color: var(--gray-100); border-bottom-color: var(--gray-100); }
     
     /* 信息项样式 */
     .info-item {
@@ -284,16 +222,11 @@
       padding: 20px;
       border: 1px solid var(--gray-200);
     }
-    
     body.dark .info-item {
       background-color: var(--gray-900);
       border-color: var(--gray-800);
     }
-    
-    .info-item:last-child {
-      margin-bottom: 0;
-    }
-    
+    .info-item:last-child { margin-bottom: 0; }
     .info-item-title {
       font-weight: 600;
       margin-bottom: 12px;
@@ -301,43 +234,27 @@
       font-size: 16px;
       letter-spacing: -0.01em;
     }
-    
-    body.dark .info-item-title {
-      color: var(--text-dark);
-    }
-    
+    body.dark .info-item-title { color: var(--text-dark); }
     .info-item-content {
       color: var(--gray-700);
       line-height: 1.6;
     }
-    
-    body.dark .info-item-content {
-      color: var(--gray-400);
-    }
-    
-    .info-item-content p {
-      margin-bottom: 10px;
-      position: relative;
-    }
-    
-    .info-item-content p:last-child {
-      margin-bottom: 0;
-    }
+    body.dark .info-item-content { color: var(--gray-400); }
+    .info-item-content p { margin-bottom: 10px; position: relative; }
+    .info-item-content p:last-child { margin-bottom: 0; }
     
     /* 有序列表样式 */
     .numbered-list {
       counter-reset: item;
-      list-style-type: none;
+      list-style: none;
       padding-left: 0;
     }
-    
     .numbered-list li {
       counter-increment: item;
       margin-bottom: 8px;
       position: relative;
       padding-left: 28px;
     }
-    
     .numbered-list li:before {
       content: counter(item) ".";
       position: absolute;
@@ -346,10 +263,7 @@
       font-weight: 500;
       color: var(--gray-900);
     }
-    
-    body.dark .numbered-list li:before {
-      color: var(--gray-300);
-    }
+    body.dark .numbered-list li:before { color: var(--gray-300); }
     
     /* 主题切换按钮 */
     .theme-toggle {
@@ -367,59 +281,26 @@
       cursor: pointer;
       z-index: 20;
       transition: all 0.3s ease;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    
     body.dark .theme-toggle {
       background-color: var(--gray-900);
       border-color: var(--gray-800);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
-    
-    .theme-toggle:hover {
-      transform: scale(1.05);
-    }
-    
-    .theme-toggle:active {
-      transform: scale(0.95);
-    }
-    
-    /* 图标 */
-    .icon {
-      width: 22px;
-      height: 22px;
-      stroke-width: 1.5;
-    }
-    
-    .hidden {
-      display: none;
-    }
+    .theme-toggle:hover { transform: scale(1.05); }
+    .theme-toggle:active { transform: scale(0.95); }
+    .icon { width: 22px; height: 22px; stroke-width: 1.5; }
+    .hidden { display: none; }
     
     /* 响应式调整 */
     @media (max-width: 480px) {
-      body {
-        padding: 16px;
-      }
-      
-      h1 {
-        font-size: 26px;
-      }
-      
-      .subtitle {
-        font-size: 15px;
-      }
-      
-      .info-header {
-        padding: 16px 20px;
-      }
-      
-      .info-content {
-        padding: 20px;
-      }
-      
-      .info-item {
-        padding: 16px;
-      }
+      body { padding: 16px; }
+      h1 { font-size: 26px; }
+      .subtitle { font-size: 15px; }
+      .info-header { padding: 16px 20px; }
+      .info-content { padding: 20px; }
+      .info-item { padding: 16px; }
     }
     
     /* 悬浮提示 */
@@ -428,7 +309,7 @@
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background-color: rgba(28, 28, 30, 0.9);
+      background-color: rgba(28,28,30,0.9);
       color: white;
       padding: 10px 18px;
       border-radius: 30px;
@@ -439,13 +320,10 @@
       letter-spacing: 0.2px;
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       pointer-events: none;
     }
-    
-    body.dark .tooltip {
-      background-color: rgba(242, 242, 247, 0.2);
-    }
+    body.dark .tooltip { background-color: rgba(242,242,247,0.2); }
   </style>
 </head>
 <body>
@@ -464,7 +342,7 @@
   <div class="container">
     <header>
       <h1>Art Studio视觉GuideTour</h1>
-      <p class="subtitle">鼠标悬浮各元素，查看设计规范路径指引</p>
+      <p class="subtitle">鼠标悬浮各元素，查看设计规范指引</p>
     </header>
   
     <div class="main-content">
@@ -472,46 +350,39 @@
       <div class="kv-container" id="kv-container">
         <img src="huawei-mate70.jpg" alt="华为Mate70系列" class="kv-image" id="kv-image">
         
-        <!-- 热区定义，根据《未命名11112 2》原始百分比定义 -->
+        <!-- 热区，位置采用《未命名11112 2》的原始百分比定位 -->
         <div class="highlight-area" id="editable-logo" style="left: 83.15%; top: 3.1%; width: 14.603%; height: 8.95727%;">
           <div class="highlight-label">Logo</div>
         </div>
-  
         <div class="highlight-area" id="editable-slogan" style="left: 60.16%; top: 34.14%; width: 31.95%; height: 6.91%;">
           <div class="highlight-label">产品传播名</div>
         </div>
-  
         <div class="highlight-area" id="editable-xmage" style="left: 87.46%; top: 41.95%; width: 7%; height: 3%;">
           <div class="highlight-label">XMAGE字标</div>
         </div>
-  
         <div class="highlight-area" id="slogan-area" style="left: 64.57%; top: 45.96%; width: 22.92%; height: 9.97%;">
           <div class="highlight-label">SLOGAN</div>
         </div>
-  
         <div class="highlight-area" id="editable-feature-text" style="left: 60.54%; top: 59.12%; width: 32%; height: 5%;">
           <div class="highlight-label">卖点KSP</div>
         </div>
-  
         <div class="highlight-area" id="editable-hotspot-1" style="left: 84.4%; top: 83.38%; width: 14%; height: 5%;">
           <div class="highlight-label">HOS标志</div>
         </div>
-  
         <div class="highlight-area" id="editable-hotspot-2" style="left: 74.48%; top: 90.36%; width: 24%; height: 5%;">
           <div class="highlight-label">Disclaimer</div>
         </div>
-        
         <div class="tooltip" id="tooltip">鼠标悬浮或点击查看设计规范</div>
       </div>
-  
+      
       <!-- 信息侧栏 -->
       <div class="info-sidebar" id="info-sidebar">
         <div class="info-header">
           <h3 class="info-title" id="info-title">视觉设计规范</h3>
         </div>
-        <div id="info-content" class="info-content">
+        <div class="info-content" id="info-content">
           <div class="info-default">
-            <p>将鼠标悬浮在图片上的高亮区域<br>查看对应的设计规范与说明</p>
+            <p>将鼠标悬浮在图片上的高亮区域<br>查看对应设计规范与说明</p>
           </div>
         </div>
       </div>
@@ -520,7 +391,6 @@
   
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // 获取DOM元素
       const themeToggle = document.getElementById('theme-toggle');
       const lightIcon = document.getElementById('light-icon');
       const darkIcon = document.getElementById('dark-icon');
@@ -528,15 +398,9 @@
       const infoContent = document.getElementById('info-content');
       const tooltip = document.getElementById('tooltip');
       const kvImage = document.getElementById('kv-image');
-      const kvContainer = document.getElementById('kv-container');
-      
-      // 获取所有热区元素
       const highlightAreas = document.querySelectorAll('.highlight-area');
-      
-      // 当前激活状态的热区ID（锁定状态）
       let activeArea = null;
       
-      // 定义每个热区对应的内容
       const areaContents = {
         "editable-logo": {
           title: "HUAWEI LOGO",
@@ -565,7 +429,7 @@
               <div class="info-item-title">位置间距</div>
               <div class="info-item-content">
                 <ul class="numbered-list">
-                  <li>以华为LOGO中的 “H” 高度为单位，产品名与广告语间隔1.50H；产品名与XMAGE Logo间隔0.25H</li>
+                  <li>以华为LOGO中的 “H” 高度为单位，产品名与广告语间隔1.50H；与XMAGE Logo间隔0.25H</li>
                   <li>确保产品名与产品卖点左右对齐</li>
                   <li>产品名、广告语与卖点居中对齐</li>
                 </ul>
@@ -591,7 +455,7 @@
             <div class="info-item">
               <div class="info-item-title">位置间距</div>
               <div class="info-item-content">
-                <p>XMAGE Logo高度为0.50H；与广告语间距0.75H，广告语与卖点间距1.50H</p>
+                <p>XMAGE Logo高度为0.50H；与广告语间隔0.75H，广告语与卖点间隔1.50H</p>
               </div>
             </div>
             <div class="info-item">
@@ -625,7 +489,7 @@
                 <ul class="numbered-list">
                   <li>中文：方正兰亭黑简体常规</li>
                   <li>英文：Huawei Sans Regular</li>
-                  <li>更多规范详见使用指导细则 <a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&amp;cata=595173" target="_blank">查看链接</a></li>
+                  <li>更多指导见相关文档：<a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&amp;cata=595173" target="_blank">查看链接</a></li>
                   <li>版权模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></li>
                 </ul>
               </div>
@@ -633,13 +497,13 @@
             <div class="info-item">
               <div class="info-item-title">位置间距</div>
               <div class="info-item-content">
-                <p>以Logo中 “H” 高度为基准，间隔1.50H，且产品名与卖点左右对齐</p>
+                <p>以Logo中 “H” 高度为标准，产品名与广告语间距1.50H，且与卖点左右对齐</p>
               </div>
             </div>
             <div class="info-item">
               <div class="info-item-title">KV文字组合</div>
               <div class="info-item-content">
-                <p>文字组合须居中显示，宽度不超整体画面宽度的31%</p>
+                <p>组合文本须居中显示，宽度不超过整体画面宽度的31%</p>
               </div>
             </div>
           `
@@ -653,7 +517,7 @@
                 <ul class="numbered-list">
                   <li>中文：方正兰亭黑简体常规</li>
                   <li>英文：Huawei Sans Regular</li>
-                  <li>更多规范详见使用指导细则 <a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&amp;cata=595173" target="_blank">查看链接</a></li>
+                  <li>更多指导见相关文档：<a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&amp;cata=595173" target="_blank">查看链接</a></li>
                   <li>版权模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></li>
                 </ul>
               </div>
@@ -661,13 +525,13 @@
             <div class="info-item">
               <div class="info-item-title">位置间距</div>
               <div class="info-item-content">
-                <p>产品名、广告语与卖点须居中显示；广告语左右缩进均为2.35H</p>
+                <p>产品名、广告语与卖点须居中对齐；广告语左右缩进各为2.35H</p>
               </div>
             </div>
             <div class="info-item">
               <div class="info-item-title">KV文字组合</div>
               <div class="info-item-content">
-                <p>组合文本宽度规定不大于整体画面31%，不得拆分、更改颜色</p>
+                <p>组合文本宽度不超过整体画面宽度的31%，且不能拆分或更改颜色</p>
               </div>
             </div>
           `
@@ -680,7 +544,7 @@
               <div class="info-item-content">
                 <ul class="numbered-list">
                   <li>HOS标志模板：<a href="https://onebox.huawei.com/p/b1fc470145b278b62581671c3fb6c838" target="_blank">查看链接</a></li>
-                  <li>标志与免责声明距离参照Logo中字母“H”的尺寸</li>
+                  <li>标志与免责声明的间距参照Logo中字母“H”的尺寸</li>
                 </ul>
               </div>
             </div>
@@ -689,7 +553,7 @@
               <div class="info-item-content">
                 <ul class="numbered-list">
                   <li>App Gallery标志模板：<a href="https://onebox.huawei.com/p/baa7f1f51272139c894523337e90a671" target="_blank">查看链接</a></li>
-                  <li>位置比例参照同上</li>
+                  <li>位置比例同上</li>
                 </ul>
               </div>
             </div>
@@ -704,7 +568,7 @@
                 <ul class="numbered-list">
                   <li>中文：方正兰亭黑简体，45px，行距75px</li>
                   <li>英文：Huawei Sans Regular, 54px，行距67px</li>
-                  <li>更多规范：<a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&amp;cata=595173" target="_blank">查看链接</a></li>
+                  <li>更多指导：<a href="https://w3.huawei.com/info/cn/doc/viewDoc.do?did=17895073&amp;cata=595173" target="_blank">查看链接</a></li>
                   <li>版权模板：<a href="https://onebox.huawei.com/p/ae619a1e3a938461df1724345bbf3a58" target="_blank">查看链接</a></li>
                 </ul>
               </div>
@@ -712,38 +576,34 @@
             <div class="info-item">
               <div class="info-item-title">位置间距</div>
               <div class="info-item-content">
-                <p>免责声明位于右下角，距离右边为2X</p>
+                <p>免责声明位于右下角，右侧距离为2X</p>
               </div>
             </div>
           `
         }
       };
       
-      // 初始化主题
+      // 初始化主题设置
       initTheme();
-  
-      // 延时隐藏提示
+      
+      // 延时隐藏悬浮提示
       setTimeout(() => {
         tooltip.style.opacity = '0';
-        setTimeout(() => {
-          tooltip.style.display = 'none';
-        }, 500);
+        setTimeout(() => { tooltip.style.display = 'none'; }, 500);
       }, 3000);
-  
-      // 为每个热区绑定事件
+      
+      // 为各热区绑定鼠标悬浮、离开及点击事件
       highlightAreas.forEach(area => {
         area.addEventListener('mouseenter', function() {
           if (!activeArea) {
             showAreaInfo(this.id);
           }
         });
-  
         area.addEventListener('mouseleave', function() {
           if (!activeArea) {
             showDefaultInfo();
           }
         });
-  
         area.addEventListener('click', function(e) {
           e.preventDefault();
           e.stopPropagation();
@@ -762,8 +622,8 @@
           }
         });
       });
-  
-      // 点击底图空白区域取消激活
+      
+      // 点击KV图片空白处取消锁定
       kvImage.addEventListener('click', function(e) {
         if (e.target === this && activeArea) {
           const cur = document.getElementById(activeArea);
@@ -772,21 +632,18 @@
           showDefaultInfo();
         }
       });
-  
-      // 主题切换
+      
+      // 主题切换按钮事件
       themeToggle.addEventListener('click', function() {
         document.body.classList.toggle('dark');
         updateThemeIcon();
         try {
-          if (typeof localStorage !== 'undefined') {
-            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
-          }
+          localStorage.setItem('theme', document.body.classList.contains('dark') ? "dark" : "light");
         } catch (e) {
-          console.log('无法保存主题设置');
+          console.log("无法保存主题设置");
         }
       });
-  
-      // 根据区域ID显示内容
+      
       function showAreaInfo(areaId) {
         const data = areaContents[areaId];
         if (data) {
@@ -794,61 +651,56 @@
           infoContent.innerHTML = data.content;
           infoContent.scrollTop = 0;
         } else {
-          console.error('未找到区域内容：', areaId);
+          console.error("未找到区域内容:", areaId);
         }
       }
-  
-      // 默认显示信息
+      
       function showDefaultInfo() {
-        infoTitle.textContent = '视觉设计规范';
+        infoTitle.textContent = "视觉设计规范";
         infoContent.innerHTML = `
           <div class="info-default">
-            <p>将鼠标悬浮在图片上的高亮区域<br>查看对应的设计规范与说明</p>
+            <p>将鼠标悬浮在图片上的高亮区域<br>查看对应设计规范与说明</p>
           </div>
         `;
       }
-  
-      // 初始化主题与监听系统偏好
+      
       function initTheme() {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
         try {
-          if (typeof localStorage !== 'undefined') {
-            const saved = localStorage.getItem('theme');
-            if (saved) {
-              if (saved === 'dark') {
-                document.body.classList.add('dark');
-              }
-              updateThemeIcon();
-              return;
+          const saved = localStorage.getItem("theme");
+          if (saved) {
+            if (saved === "dark") {
+              document.body.classList.add("dark");
             }
+            updateThemeIcon();
+            return;
           }
-        } catch (e) {
-          console.log('无法访问localStorage，使用系统偏好');
+        } catch(e) {
+          console.log("访问localStorage失败，使用系统偏好");
         }
         if (prefersDark) {
-          document.body.classList.add('dark');
+          document.body.classList.add("dark");
         }
         updateThemeIcon();
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", event => {
           if (event.matches) {
-            document.body.classList.add('dark');
+            document.body.classList.add("dark");
           } else {
-            document.body.classList.remove('dark');
+            document.body.classList.remove("dark");
           }
           updateThemeIcon();
         });
       }
-  
+      
       function updateThemeIcon() {
-        if (document.body.classList.contains('dark')) {
-          lightIcon.classList.add('hidden');
-          darkIcon.classList.remove('hidden');
+        if (document.body.classList.contains("dark")) {
+          lightIcon.classList.add("hidden");
+          darkIcon.classList.remove("hidden");
         } else {
-          lightIcon.classList.remove('hidden');
-          darkIcon.classList.add('hidden');
+          lightIcon.classList.remove("hidden");
+          darkIcon.classList.add("hidden");
         }
       }
-  
     });
   </script>
 
