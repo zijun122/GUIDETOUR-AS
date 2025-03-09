@@ -119,19 +119,14 @@
       object-fit: contain;
     }
     
-    /* 热区样式 - 解决闪烁问题 */
+    /* 热区样式 - 移除过渡效果防止闪烁 */
     .highlight-area {
       position: absolute;
       border: 2px solid transparent;
       background-color: rgba(0, 0, 0, 0);
-      transition: border-color 0.2s ease, background-color 0.2s ease;
       cursor: pointer;
       z-index: 10;
       border-radius: 8px;
-      /* 防止大小变化导致闪烁 */
-      transform: translate3d(0, 0, 0);
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
     }
     
     .highlight-area:hover {
@@ -166,9 +161,8 @@
       padding: 3px 8px;
       border-radius: 6px 0 6px 0;
       opacity: 0;
-      transition: opacity 0.2s ease;
       letter-spacing: 0.3px;
-      pointer-events: none; /* 防止标签触发事件 */
+      pointer-events: none;
     }
     
     body.dark .highlight-label {
@@ -176,11 +170,12 @@
       color: var(--black);
     }
     
-    .highlight-area:hover .highlight-label, .highlight-area.active .highlight-label {
+    .highlight-area:hover .highlight-label,
+    .highlight-area.active .highlight-label {
       opacity: 1;
     }
     
-    /* 信息侧栏 - 优化排版 */
+    /* 信息侧栏 */
     .info-sidebar {
       flex: 0 0 380px;
       border-radius: var(--border-radius);
@@ -245,7 +240,7 @@
       color: var(--gray-500);
     }
     
-    /* 链接样式 - 改为灰色调 */
+    /* 链接样式 */
     a {
       color: var(--gray-800);
       text-decoration: none;
@@ -269,7 +264,7 @@
       border-bottom-color: var(--gray-100);
     }
     
-    /* 信息项样式 - 优化排版 */
+    /* 信息项样式 */
     .info-item {
       margin-bottom: 24px;
       background-color: var(--bg-light);
@@ -415,7 +410,7 @@
       }
     }
     
-    /* 悬浮提示 - 更精致 */
+    /* 悬浮提示 */
     .tooltip {
       position: absolute;
       bottom: 20px;
@@ -457,7 +452,7 @@
   <div class="container">
     <header>
       <h1>Art Studio视觉GuideTour</h1>
-      <p class="subtitle">在图片中探索各设计元素的规范，点击区域可锁定查看详情</p>
+      <p class="subtitle">鼠标悬浮各元素，查看设计规范路径指引</p>
     </header>
 
     <div class="main-content">
@@ -465,36 +460,36 @@
       <div class="kv-container">
         <img src="huawei-mate70.jpg" alt="华为Mate70系列" class="kv-image" id="kv-image">
         
-        <!-- 正确使用原来的ID和位置值 -->
+        <!-- 保留原始热区ID但更新位置 -->
         <div class="highlight-area" id="editable-logo" style="left: 83.1267%; top: 3.7604%; width: 14.603%; height: 8.95727%;">
           <div class="highlight-label">Logo</div>
         </div>
         
-        <div class="highlight-area" id="editable-slogan" style="left: 60.1617%; top: 33.0518%; width: 32.6819%; height: 7.9989%;">
+        <div class="highlight-area" id="editable-slogan" style="left: 65%; top: 30%; width: 32%; height: 10%;">
           <div class="highlight-label">产品传播名</div>
         </div>
         
-        <div class="highlight-area" id="editable-xmage" style="left: 86.9811%; top: 40.5106%; width: 7%; height: 3%;">
+        <div class="highlight-area" id="editable-xmage" style="left: 85%; top: 33.5%; width: 7%; height: 3%;">
           <div class="highlight-label">XMAGE字标</div>
         </div>
         
-        <div class="highlight-area" id="slogan-area" style="left: 60.1617%; top: 40.5106%; width: 32.6819%; height: 7.9989%;">
+        <div class="highlight-area" id="slogan-area" style="left: 65%; top: 39%; width: 32%; height: 10%;">
           <div class="highlight-label">SLOGAN</div>
         </div>
         
-        <div class="highlight-area" id="editable-feature-text" style="left: 60.1482%; top: 56.3858%; width: 32.9782%; height: 4.2353%;">
+        <div class="highlight-area" id="editable-feature-text" style="left: 65%; top: 48%; width: 32%; height: 5%;">
           <div class="highlight-label">卖点KSP</div>
         </div>
         
-        <div class="highlight-area" id="editable-hotspot-1" style="left: 87.655%; top: 78.1462%; width: 10.1345%; height: 5.44574%;">
+        <div class="highlight-area" id="editable-hotspot-1" style="left: 83%; top: 67%; width: 14%; height: 5%;">
           <div class="highlight-label">HOS标志</div>
         </div>
         
-        <div class="highlight-area" id="editable-hotspot-2" style="left: 80.8626%; top: 83.5429%; width: 17.6817%; height: 4.48737%;">
+        <div class="highlight-area" id="editable-hotspot-2" style="left: 75%; top: 74%; width: 24%; height: 5%;">
           <div class="highlight-label">Disclaimer</div>
         </div>
         
-        <div class="tooltip" id="tooltip">点击或悬停查看设计规范</div>
+        <div class="tooltip" id="tooltip">鼠标悬浮或点击查看设计规范</div>
       </div>
 
       <!-- 信息侧栏 -->
@@ -528,10 +523,7 @@
       // 当前激活的热区
       let activeArea = null;
       
-      // 添加防抖处理，防止闪烁
-      let debounceTimer = null;
-      
-      // 定义每个热区的内容 - 使用有序列表改进排版
+      // 定义每个热区的内容
       const areaContents = {
         'editable-logo': {
           title: 'HUAWEI LOGO',
@@ -717,42 +709,27 @@
       // 初始化主题
       initTheme();
       
-      // 悬停提示定时器
-      let tooltipTimer;
-      
-      // 显示悬停提示，3秒后消失
-      tooltipTimer = setTimeout(() => {
+      // 提示文本定时隐藏
+      setTimeout(() => {
         tooltip.style.opacity = '0';
         setTimeout(() => {
           tooltip.style.display = 'none';
         }, 500);
       }, 3000);
       
-      // 热区悬停和点击事件 - 添加防抖处理
+      // 热区事件处理 - 简化逻辑，去除防抖
       highlightAreas.forEach(area => {
-        // 鼠标进入热区
+        // 鼠标进入热区 - 直接处理
         area.addEventListener('mouseenter', function() {
-          // 清除之前的防抖计时器
-          if (debounceTimer) clearTimeout(debounceTimer);
-          
-          // 设置新的计时器
-          debounceTimer = setTimeout(() => {
-            if (!activeArea) {
-              showAreaInfo(this.id);
-            }
-          }, 50); // 短暂延迟以防止闪烁
+          if (!activeArea) {
+            showAreaInfo(this.id);
+          }
         });
         
-        // 鼠标离开热区
+        // 鼠标离开热区 - 直接处理
         area.addEventListener('mouseleave', function() {
-          // 清除防抖计时器
-          if (debounceTimer) clearTimeout(debounceTimer);
-          
-          // 如果没有激活的热区，恢复默认内容
           if (!activeArea) {
-            debounceTimer = setTimeout(() => {
-              showDefaultInfo();
-            }, 50); // 短暂延迟以防止闪烁
+            showDefaultInfo();
           }
         });
         
@@ -780,7 +757,6 @@
       
       // 点击图片空白区域，取消锁定
       document.getElementById('kv-image').addEventListener('click', function(e) {
-        // 只有当点击的是图片本身而不是热区时
         if (e.target === this && activeArea) {
           document.getElementById(activeArea).classList.remove('active');
           activeArea = null;
@@ -788,12 +764,11 @@
         }
       });
       
-      // 主题切换按钮点击事件
+      // 主题切换
       themeToggle.addEventListener('click', function() {
         document.body.classList.toggle('dark');
         updateThemeIcon();
         
-        // 保存主题偏好
         try {
           if (typeof localStorage !== 'undefined') {
             localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
@@ -803,12 +778,30 @@
         }
       });
       
+      // 显示热区信息
+      function showAreaInfo(areaId) {
+        const areaData = areaContents[areaId];
+        if (areaData) {
+          infoTitle.textContent = areaData.title;
+          infoContent.innerHTML = areaData.content;
+          infoContent.scrollTop = 0;
+        }
+      }
+      
+      // 显示默认信息
+      function showDefaultInfo() {
+        infoTitle.textContent = '视觉设计规范';
+        infoContent.innerHTML = `
+          <div class="info-default">
+            <p>将鼠标悬停在图片上的高亮区域<br>查看对应的设计规范与说明</p>
+          </div>
+        `;
+      }
+      
       // 初始化主题
       function initTheme() {
-        // 首先尝试检测系统偏好
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         
-        // 然后尝试从localStorage中获取，如果不可用就使用系统偏好
         try {
           if (typeof localStorage !== 'undefined') {
             const storedTheme = localStorage.getItem('theme');
@@ -824,13 +817,11 @@
           console.log('无法访问localStorage，使用系统颜色偏好');
         }
         
-        // 使用系统颜色偏好
         if (prefersDark) {
           document.body.classList.add('dark');
         }
         updateThemeIcon();
         
-        // 监听系统主题变化
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
           if (event.matches) {
             document.body.classList.add('dark');
@@ -850,28 +841,6 @@
           lightIcon.classList.remove('hidden');
           darkIcon.classList.add('hidden');
         }
-      }
-      
-      // 显示热区信息
-      function showAreaInfo(areaId) {
-        const areaData = areaContents[areaId];
-        if (areaData) {
-          infoTitle.textContent = areaData.title;
-          infoContent.innerHTML = areaData.content;
-          
-          // 滚动到顶部
-          infoContent.scrollTop = 0;
-        }
-      }
-      
-      // 显示默认信息
-      function showDefaultInfo() {
-        infoTitle.textContent = '视觉设计规范';
-        infoContent.innerHTML = `
-          <div class="info-default">
-            <p>将鼠标悬停在图片上的高亮区域<br>查看对应的设计规范与说明</p>
-          </div>
-        `;
       }
     });
   </script>
