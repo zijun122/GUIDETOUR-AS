@@ -117,7 +117,6 @@
       width: 100%;
       height: auto;
       display: block;
-      object-fit: contain;
     }
     
     /* 热区样式 - 移除过渡效果防止闪烁 */
@@ -458,35 +457,35 @@
 
     <div class="main-content">
       <!-- KV图片区域 -->
-      <div class="kv-container">
+      <div class="kv-container" id="kv-container">
         <img src="huawei-mate70.jpg" alt="华为Mate70系列" class="kv-image" id="kv-image">
         
-        <!-- 使用正确的热区位置代码 -->
-        <div class="highlight-area" id="editable-logo" style="left: 83.15%; top: 3.1%; width: 14.603%; height: 8.95727%;">
+        <!-- 使用原始热区位置代码，位置会通过JavaScript动态调整 -->
+        <div class="highlight-area" id="editable-logo" data-left="83.15" data-top="3.1" data-width="14.603" data-height="8.95727">
           <div class="highlight-label">Logo</div>
         </div>
 
-        <div class="highlight-area" id="editable-slogan" style="left: 60.16%; top: 34.14%; width: 31.95%; height: 6.91%;">
+        <div class="highlight-area" id="editable-slogan" data-left="60.16" data-top="34.14" data-width="31.95" data-height="6.91">
           <div class="highlight-label">产品传播名</div>
         </div>
 
-        <div class="highlight-area" id="editable-xmage" style="left: 87.46%; top: 41.95%; width: 7%; height: 3%;">
+        <div class="highlight-area" id="editable-xmage" data-left="87.46" data-top="41.95" data-width="7" data-height="3">
           <div class="highlight-label">XMAGE字标</div>
         </div>
 
-        <div class="highlight-area" id="slogan-area" style="left: 64.57%; top: 45.96%; width: 22.92%; height: 9.97%;">
+        <div class="highlight-area" id="slogan-area" data-left="64.57" data-top="45.96" data-width="22.92" data-height="9.97">
           <div class="highlight-label">SLOGAN</div>
         </div>
 
-        <div class="highlight-area" id="editable-feature-text" style="left: 60.54%; top: 59.12%; width: 32%; height: 5%;">
+        <div class="highlight-area" id="editable-feature-text" data-left="60.54" data-top="59.12" data-width="32" data-height="5">
           <div class="highlight-label">卖点KSP</div>
         </div>
 
-        <div class="highlight-area" id="editable-hotspot-1" style="left: 84.4%; top: 83.38%; width: 14%; height: 5%;">
+        <div class="highlight-area" id="editable-hotspot-1" data-left="84.4" data-top="83.38" data-width="14" data-height="5">
           <div class="highlight-label">HOS标志</div>
         </div>
 
-        <div class="highlight-area" id="editable-hotspot-2" style="left: 74.48%; top: 90.36%; width: 24%; height: 5%;">
+        <div class="highlight-area" id="editable-hotspot-2" data-left="74.48" data-top="90.36" data-width="24" data-height="5">
           <div class="highlight-label">Disclaimer</div>
         </div>
         
@@ -517,12 +516,18 @@
       const infoTitle = document.getElementById('info-title');
       const infoContent = document.getElementById('info-content');
       const tooltip = document.getElementById('tooltip');
+      const kvImage = document.getElementById('kv-image');
+      const kvContainer = document.getElementById('kv-container');
       
       // 所有热区元素
       const highlightAreas = document.querySelectorAll('.highlight-area');
       
       // 当前激活的热区
       let activeArea = null;
+      
+      // 图片原始尺寸 - 根据您的说明，这是您提供的实际图片尺寸
+      const originalImageWidth = 2001;
+      const originalImageHeight = 1000;
       
       // 定义每个热区的内容
       const areaContents = {
@@ -717,6 +722,60 @@
           tooltip.style.display = 'none';
         }, 500);
       }, 3000);
+
+      // 调整热区位置函数
+      function adjustHotspotAreas() {
+        // 获取图片的实际显示尺寸和位置
+        const imageRect = kvImage.getBoundingClientRect();
+        const containerRect = kvContainer.getBoundingClientRect();
+        
+        // 计算图片在容器中的实际显示区域
+        const imageOffsetLeft = imageRect.left - containerRect.left;
+        const imageOffsetTop = imageRect.top - containerRect.top;
+        const displayedImageWidth = imageRect.width;
+        const displayedImageHeight = imageRect.height;
+
+        // 调整每个热区位置
+        highlightAreas.forEach(area => {
+          // 获取保存在data属性中的百分比位置
+          const leftPercent = parseFloat(area.dataset.left) / 100;
+          const topPercent = parseFloat(area.dataset.top) / 100;
+          const widthPercent = parseFloat(area.dataset.width) / 100;
+          const heightPercent = parseFloat(area.dataset.height) / 100;
+          
+          // 计算基于图片的实际像素位置
+          const left = imageOffsetLeft + (displayedImageWidth * leftPercent);
+          const top = imageOffsetTop + (displayedImageHeight * topPercent);
+          const width = displayedImageWidth * widthPercent;
+          const height = displayedImageHeight * heightPercent;
+          
+          // 转换为相对于容器的百分比
+          const containerWidth = containerRect.width;
+          const containerHeight = containerRect.height;
+          
+          const leftPercentInContainer = (left / containerWidth) * 100;
+          const topPercentInContainer = (top / containerHeight) * 100;
+          const widthPercentInContainer = (width / containerWidth) * 100;
+          const heightPercentInContainer = (height / containerHeight) * 100;
+          
+          // 应用计算出的位置
+          area.style.left = `${leftPercentInContainer}%`;
+          area.style.top = `${topPercentInContainer}%`;
+          area.style.width = `${widthPercentInContainer}%`;
+          area.style.height = `${heightPercentInContainer}%`;
+        });
+      }
+      
+      // 图片加载完成后调整热区位置
+      kvImage.addEventListener('load', adjustHotspotAreas);
+      
+      // 窗口大小改变时重新调整热区位置
+      window.addEventListener('resize', adjustHotspotAreas);
+      
+      // 如果图片已经加载完成，立即调整位置
+      if (kvImage.complete) {
+        adjustHotspotAreas();
+      }
       
       // 热区事件处理 - 修复悬停和点击使用同一热区的问题
       highlightAreas.forEach(area => {
@@ -757,7 +816,7 @@
       });
       
       // 点击图片空白区域，取消锁定
-      document.getElementById('kv-image').addEventListener('click', function(e) {
+      kvImage.addEventListener('click', function(e) {
         if (e.target === this && activeArea) {
           document.getElementById(activeArea).classList.remove('active');
           activeArea = null;
